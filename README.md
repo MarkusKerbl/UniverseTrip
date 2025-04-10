@@ -1,2 +1,2 @@
 # UniverseTrip
-Simulation of objects in the whole universe
+Mapping the Cosmos: A Journey Through the Universe's Objects
