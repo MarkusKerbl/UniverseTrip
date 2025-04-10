@@ -1,2 +1,2 @@
 # UniverseTrip
-Mapping the Cosmos: A Journey Through the Universe's Objects
+A glimpse into the structure of the universe
