@@ -1,2 +1,2 @@
 # UniverseTrip
-A glimpse into the structure of the universe
+A trip into the structure of the universe
