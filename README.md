@@ -1,5 +1,4 @@
-# UniverseTrip
-A trip into the structure of the universe
+# UniverseTrip - A trip into the structure of the universe
 
 UniverseTrip ist ein interaktives 3D-Visualisierungsprogramm zur Darstellung kosmischer Objekte im sichtbaren Universum. Die dargestellten Objekte können über eine Objekt-Datei im CSV-Format vom Benutzer beliebig erstellt und angepasst werden.
 
@@ -24,7 +23,6 @@ UniverseTrip Object-List-Creator
   - Objekte mit Entfernung 0.0 ignoriert werden
 - Benutzerdefinierter Dateiname für Ausgabedatei (Objektdatei)
 
-
 ---
 
 ## Projektstruktur
@@ -40,11 +38,18 @@ universe-trip/
 
 ## Installation
 
-```bash
+bash
 git clone https://github.com/dein-benutzername/universe-trip.git
 cd universe-trip
 pip install -r requirements.txt
 
+---
+
+## Mitgelieferte Objektdaten
+FÜr die Erstellung der Objektdaten sind im Ordner "/UniverseTrip_Object_List_Creator/object_databases" Objektdaten aus verschiedenen astronomischen Katalogen zur Verfügung gestellt.
+Um das Programm auf einfache Art direkt verwenden zu können, sind im Ordner "/UniverseTrip/" bereits beispielhafte Objektdatein mit dem Namen "objects_xxx.csv" zu finden.  
+
+---
 
 ## Verwendung
 1. Daten konfigurieren (optional)
@@ -61,7 +66,19 @@ Bearbeiten
 python universe_trip/visualizer.py
 Öffnet die 3D-Darstellung des Universums mit interaktiver Navigation.
 
-## Eingabedatei – Format
+---
+
+## Format der Objektdatein
+Die CSV-Datei muss folgende Spalten enthalten:
+id – Objekt-ID
+V – Visuelle Helligkeit
+distLj_mean – Mittlere Entfernung in Lichtjahren
+objType – Objekttyp
+galX, galY, galZ – Galaktische Koordinaten
+Beispiel findest du unter data/example.csv.
+
+---
+## Format der Objektdatenbankdatei
 Die CSV-Datei sollte folgende Spalten enthalten:
 id – Objekt-ID
 V – Visuelle Helligkeit
@@ -70,8 +87,10 @@ objType – Objekttyp
 galX, galY, galZ – Galaktische Koordinaten
 Beispiel findest du unter data/example.csv.
 
+---
 ## Lizenz
 GPL – siehe LICENSE.
 
+---
 💬 Mitmachen
 Du hast Ideen oder Verbesserungsvorschläge? Gerne! Issues und Pull Requests sind willkommen!
