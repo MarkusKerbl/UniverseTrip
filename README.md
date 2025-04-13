@@ -92,5 +92,5 @@ Beispiel findest du unter data/example.csv.
 GPL – siehe LICENSE.
 
 ---
-💬 Mitmachen
+## Mitmachen
 Du hast Ideen oder Verbesserungsvorschläge? Gerne! Issues und Pull Requests sind willkommen!
