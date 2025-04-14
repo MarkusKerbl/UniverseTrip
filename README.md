@@ -1,8 +1,8 @@
 # UniverseTrip - A trip into the structure of the universe
 
-UniverseTrip ist ein interaktives 3D-Visualisierungsprogramm zur Darstellung kosmischer Objekte im sichtbaren Universum. Die dargestellten Objekte können über eine Objekt-Datei im CSV-Format vom Benutzer beliebig erstellt und angepasst werden.
+UniverseTrip ist ein interaktives 3D-Visualisierungsprogramm zur Darstellung kosmischer Objekte im sichtbaren Universum. Die dargestellten Objekte können über eine Objekt-Datei im CSV-Format vom Benutzer beliebig erstellt und angepasst werden. Die Objekte werden im dreidimensionalen Raum maßstabsgetreu an der richtigen Stelle dargestellt, sodass die räumlichen Zusammenhänge veranschaulicht werden. Mithilfe der intuitiven Bedienung mit der Maus und dem Mausrad kann vom Erde-Mond System bishin zum sichtbaren Universum zoomen und navigieren werden.
 
-Dieses Repository enthält optional auch einen separaten Object-List-Creator, mit dessen Hilfe die Objekt-Dateien automatisch konfiguriert und erstellt werden können. Als input für diesen Objekt-List-Creator dienen mehrere zur Verfügung gestellte MS-Excel Datein, die die aufbereiteten Objektdaten aus der astronomischen Datenbank SIMBAD enthalten.
+Dieses Repository enthält optional auch einen separaten Object-List-Creator, mit dessen Hilfe die Objekt-Dateien automatisch erstellt und konfiguriert werden können. Als Input für diesen Objekt-List-Creator dienen mehrere zur Verfügung gestellte MS-Excel Datein, die die aufbereiteten Objektdaten aus der astronomischen Datenbank SIMBAD enthalten.
 
 ---
 
@@ -10,29 +10,27 @@ Dieses Repository enthält optional auch einen separaten Object-List-Creator, mi
 
 UniverseTrip
 - 3D-Visualisierung kosmischer Objekte vom Erde-Mond-System bishin zum sichtbaren Universum
+- Intuitive Navigation mit der Maus und dem Mausrad durch den dreidimensionalen Raum
 - Dargestellte Objekte werden durch eine Objektdatei im CSV Format definiert
 - Die CSV-Objektdatei kann beliebig mit dem Object-List-Creator erstellt und manuell zusammengestellt und verändert werden
-- Konfiguration der Anzeige über GUI
+- Konfiguration der Anzeige über ein GUI
 
 UniverseTrip Object-List-Creator
 - Erstellung von Objektdatein auf Basis von auswählbarer Objektdatenbank-Datein
-- Filterfunktionen für:
-  - Objekttypen
-  - Helligkeit (in Magnituden)
-  - Entfernung (in Lichtjahren)
-  - Objekte mit Entfernung 0.0 ignoriert werden
+- Filterfunktionen, um nur bestimmt Objekte zur berücksichtigen
 - Benutzerdefinierter Dateiname für Ausgabedatei (Objektdatei)
 
 ---
 
 ## Projektstruktur
 
-universe-trip/ 
-├── universe_trip/ # Visualisierungsprogramm 
-├── object_list_creator/ # Generierung der Objektdatein
-├── README.md 
-├── requirements.txt 
-└── LICENSE
+/universe-trip/ 
+- object_database/                     # Objektdatenbanken, als Input für die Erstellung der Objektdatein
+- app_data/                            # Datein, die für die Ausführung des Programmes notwendig sind
+- UniverseTrip.py                      # Visualisierungsprogramm
+- UniverseTrip_ObjectListCreator.py    # Programm für die Generierung von Objektdatein
+- README.md                            # readme
+- LICENSE                              # Lizenzfile
 
 ---
 
