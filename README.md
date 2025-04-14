@@ -1,6 +1,6 @@
 # UniverseTrip - A trip into the structure of the universe
 
-UniverseTrip ist ein interaktives 3D-Visualisierungsprogramm zur Darstellung kosmischer Objekte im sichtbaren Universum. Die dargestellten Objekte können über eine Objekt-Datei im CSV-Format vom Benutzer beliebig erstellt und angepasst werden. Die Objekte werden im dreidimensionalen Raum maßstabsgetreu an der richtigen Stelle dargestellt, sodass die räumlichen Zusammenhänge veranschaulicht werden. Mithilfe der intuitiven Bedienung mit der Maus und dem Mausrad kann vom Erde-Mond System bishin zum sichtbaren Universum zoomen und navigieren werden. Das Visualisierungsprogramm wird nach erfogter Anzeigenkonfiguration im Standardbrwoser geöffnet und ausgeführt.
+UniverseTrip ist ein interaktives 3D-Visualisierungsprogramm zur Darstellung kosmischer Objekte im gesamten sichtbaren Universum. Die dargestellten Objekte können über eine Objekt-Datei im CSV-Format vom Benutzer beliebig erstellt und angepasst werden. Die Objekte werden im dreidimensionalen Raum maßstabsgetreu an der richtigen Stelle dargestellt, sodass die räumlichen Zusammenhänge erkennbar werden. Mithilfe der intuitiven Bedienung mit der Maus und dem Mausrad, kann vom Erde-Mond System bishin zum sichtbaren Universum gezoomt und navigiert werden. Das Visualisierungsprogramm wird nach der Konfiguration der Anzeige im Standardbrwoser geöffnet.
 
 Dieses Repository enthält optional auch einen separaten Object-List-Creator, mit dessen Hilfe die Objekt-Dateien automatisch erstellt und konfiguriert werden können. Als Input für diesen Objekt-List-Creator dienen mehrere zur Verfügung gestellte MS-Excel Datein, die die aufbereiteten Objektdaten aus der astronomischen Datenbank SIMBAD enthalten.
 
@@ -25,8 +25,8 @@ UniverseTrip Object-List-Creator
 ## Projektstruktur
 
 /universe-trip/ 
-- object_database/                     # Objektdatenbanken, als Input für die Erstellung der Objektdatein
-- app_data/                            # Datein, die für die Ausführung des Programmes notwendig sind
+- /object_database/                    # Objektdatenbanken, als Input für die Erstellung der Objektdatein
+- /app_data/                           # Datein, die für die Ausführung des Programmes notwendig sind
 - UniverseTrip.py                      # Visualisierungsprogramm
 - UniverseTrip_ObjectListCreator.py    # Programm für die Generierung von Objektdatein
 - README.md                            # readme
@@ -49,24 +49,33 @@ Installation unter Windows:
 ---
 
 ## Mitgelieferte Objektdaten
-FÜr die Erstellung der Objektdaten sind im Ordner "/UniverseTrip_Object_List_Creator/object_databases" Objektdaten aus verschiedenen astronomischen Katalogen zur Verfügung gestellt.
+FÜr die Erstellung der Objektdaten sind im Ordner "/object_database/" Objektdaten aus verschiedenen astronomischen Katalogen zur Verfügung gestellt.
 Um das Programm auf einfache Art direkt verwenden zu können, sind im Ordner "/UniverseTrip/" bereits beispielhafte Objektdatein mit dem Namen "objects_xxx.csv" zu finden.  
+
+objects_Solarsystem.csv - Objekte des Sonnensystems
+objects_Supercluster.csv - Zusammenstellung der Galaxienhaufen
+objects_NGC.csv - NGC Katalog (Alle Objekte des NGC Katalogs)
+objects_HR.csv - HR Katalog (Alle Sterne die Heller als 6,5mag sind)
+objects_M.csv - Messier Katalog (Alle Objekte des Messier Katalogs)
+objects_UniverseTrip.csv - UniverseTrip Zusammenstellung (Zusammenfassung der schönsten und erwähnenswerten Objekte sowie eine Darstellung der Superhaufen)
 
 ---
 
 ## Verwendung
-1. Daten konfigurieren (optional)
-bash
-Kopieren
-Bearbeiten
-python config_tool/config_gui.py
-Damit kannst du deine Eingabedateien filtern und vorbereiten.
+1. Objektdatei erstellen (optional)
+Die angezeigten Objekte werden in einer Objects_X.csv Datei definiert. Eine Objektdatei kann manuell durch zusammenkopieren von vorhanden Objektdatein erstellt werden oder Toolunterstützt mit dem UniverseTrip_ObjectListCreator.py.
+
+ - UniverseTrip_ObjectListCreator.py öffnen
+ - Datenbankdatei aus dem Ordner /object_database/ öffnen
+ - Konfiguration, welche Objekte in die object_x.csv Datei übernommen werden sollen
+ - Definition der Objekt-Datei
+ - Durch Klick auf XXXXXXX wird die Objektdatei erstellt.
 
 2. Visualisierung starten
-
-python universe_trip/visualizer.py
-Öffnet die 3D-Darstellung des Universums mit interaktiver Navigation.
-Das Visualisierungsprogramm wird nach Konfiguration der Anzeige und klick auf den Button "GO!" im Standardbrwoser geöffnet. Das Laden des Visualisierungsprogramms dauert je nach Anzahl der Objekte und Rechenleistung mehrere Sekunden. Bitte um etwas Geduld.
+- UniverseTrip.py öffnen
+- Objectdatei auswählen
+- Konfiguration der Anzeigeoptionen
+- Mit Klick auf Button "GO!" wird die Visualisierung im Standardbrwoser geöffnet. Das Laden kann je nach Anzahl der Objekte und Rechenleistung mehrere Sekunden dauern. Bitte um etwas Geduld.
 
 ---
 
@@ -81,7 +90,7 @@ Beispiel findest du unter data/example.csv.
 
 ---
 ## Format der Objektdatenbankdatei
-Die CSV-Datei sollte folgende Spalten enthalten:
+Die .xlsx Datei sollte folgende Spalten enthalten:
 id – Objekt-ID
 V – Visuelle Helligkeit
 distLj_mean – Mittlere Entfernung in Lichtjahren
