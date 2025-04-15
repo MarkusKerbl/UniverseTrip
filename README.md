@@ -1,6 +1,10 @@
 # UniverseTrip - A trip into the structure of the universe
 
-UniverseTrip ist ein interaktives 3D-Visualisierungsprogramm zur Darstellung kosmischer Objekte im gesamten sichtbaren Universum. Die dargestellten Objekte können über eine Objekt-Datei im CSV-Format vom Benutzer beliebig erstellt und angepasst werden. Die Objekte werden im dreidimensionalen Raum maßstabsgetreu an der richtigen Stelle dargestellt, sodass die räumlichen Zusammenhänge erkennbar werden. Mithilfe der intuitiven Bedienung mit der Maus und dem Mausrad, kann vom Erde-Mond System bishin zum sichtbaren Universum gezoomt und navigiert werden. Das Visualisierungsprogramm wird nach der Konfiguration der Anzeige im Standardbrwoser geöffnet.
+UniverseTrip ist ein interaktives 3D-Visualisierungsprogramm zur Darstellung kosmischer Objekte im gesamten sichtbaren Universum. 
+
+![Demo GIF](app_data/UniverseTrip_recording.gif)
+
+Die dargestellten Objekte können über eine Objekt-Datei im CSV-Format vom Benutzer beliebig erstellt und angepasst werden. Die Objekte werden im dreidimensionalen Raum maßstabsgetreu an der richtigen Stelle dargestellt, sodass die räumlichen Zusammenhänge erkennbar werden. Mithilfe der intuitiven Bedienung mit der Maus und dem Mausrad, kann vom Erde-Mond System bishin zum sichtbaren Universum gezoomt und navigiert werden. Das Visualisierungsprogramm wird nach der Konfiguration der Anzeige im Standardbrwoser geöffnet.
 
 Dieses Repository enthält optional auch einen separaten Object-List-Creator, mit dessen Hilfe die Objekt-Dateien automatisch erstellt und konfiguriert werden können. Als Input für diesen Objekt-List-Creator dienen mehrere zur Verfügung gestellte MS-Excel Datein, die die aufbereiteten Objektdaten aus der astronomischen Datenbank SIMBAD enthalten.
 
