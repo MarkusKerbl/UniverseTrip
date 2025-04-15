@@ -327,7 +327,7 @@ GUI erstellen
 
 root = tk.Tk()
 root.title("UniverseTrip - Object list creator")
-root.iconbitmap("favicon.ico")
+root.iconbitmap("app_data/favicon.ico")
 root.geometry("500x800")   # Größeres Fenster
 
 # --- Fenster zentrieren ---
@@ -339,7 +339,7 @@ y = (root.winfo_screenheight() // 2) - (height // 2)
 root.geometry(f"+{x}+{y}")
 
 # PNG-Bild laden
-image = Image.open("Logo_small.png")
+image = Image.open("app_data/Logo_small.png")
 image = image.resize((60, 60)) # Größe anpassen
 photo = ImageTk.PhotoImage(image)
 

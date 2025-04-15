@@ -904,7 +904,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
 
 
     # Bild laden und als base64 encodieren
-    img = Image.open("Logo_small_text.png")
+    img = Image.open("app_data/Logo_small_text.png")
     buffer = BytesIO()
     img.save(buffer, format="PNG")
     encoded_image = base64.b64encode(buffer.getvalue()).decode()
@@ -958,7 +958,7 @@ GUI creation
 def start_gui():
     root = tk.Tk()
     root.title("UniverseTrip - Configuration")
-    root.iconbitmap("favicon.ico")
+    root.iconbitmap("app_data/favicon.ico")
     root.geometry("500x570")   # Größeres Fenster
 
     # --- Center window ---
@@ -1024,7 +1024,7 @@ def start_gui():
         )
 
     # ---------- Logo ----------
-    image = Image.open("Logo_small.png")
+    image = Image.open("app_data/Logo_small.png")
     image = image.resize((60, 60)) # Größe anpassen
     photo = ImageTk.PhotoImage(image)
 
