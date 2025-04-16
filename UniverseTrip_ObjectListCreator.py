@@ -474,11 +474,11 @@ startvalues_frame = tk.Frame(start_frame, bg="#2b2b2b")
 startvalues_frame.pack(fill="x", padx=0, pady=0)
 
 # Eingabefeld für den Dateinamen
-ttk.Label(startvalues_frame, text="Dateiname für die Ausgabe:").grid(row=0, column=0, sticky="w", padx=0, pady=0)
+ttk.Label(startvalues_frame, text="Name of the object file:").grid(row=0, column=0, sticky="w", padx=0, pady=0)
 entry_filename = ttk.Entry(startvalues_frame)
 entry_filename.grid(row=0, column=1, sticky="e", padx=0, pady=0)
 entry_filename.insert(0, "objects_x.csv")  # Standardwert
 
-tk.Button(start_frame, text="Datei erstellen", font=("Arial", 12, "bold"), bg="#4CAF50", fg="white", command=process_file).pack(anchor="e", pady=10)
+tk.Button(start_frame, text="Create file", font=("Arial", 12, "bold"), bg="#4CAF50", fg="white", command=process_file).pack(anchor="e", pady=10)
 
 root.mainloop()
