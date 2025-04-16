@@ -4,37 +4,41 @@ UniverseTrip ist ein interaktives 3D-Visualisierungsprogramm zur Darstellung kos
 
 ![Demo GIF](app_data/UniverseTrip_recording.gif)
 
-Die dargestellten Objekte können über eine Objekt-Datei im CSV-Format vom Benutzer beliebig erstellt und angepasst werden. Die Objekte werden im dreidimensionalen Raum maßstabsgetreu an der richtigen Stelle dargestellt, sodass die räumlichen Zusammenhänge erkennbar werden. Mithilfe der intuitiven Bedienung mit der Maus und dem Mausrad, kann vom Erde-Mond System bishin zum sichtbaren Universum gezoomt und navigiert werden. Das Visualisierungsprogramm wird nach der Konfiguration der Anzeige im Standardbrwoser geöffnet.
+Die dargestellten Objekte können über eine Objekt-Datei vom Benutzer beliebig erstellt und angepasst werden. Die Objekte werden im dreidimensionalen Raum maßstabsgetreu an der richtigen Stelle dargestellt, sodass die räumlichen Zusammenhänge erkennbar werden. Mithilfe der intuitiven Bedienung mit der Maus und dem Mausrad, kann vom Erde-Mond System bishin zum sichtbaren Universum gezoomt und navigiert werden. Das Visualisierungsprogramm wird nach der Konfiguration der Anzeige im Standardbrwoser geöffnet.
 
-Dieses Repository enthält optional auch einen separaten Object-List-Creator, mit dessen Hilfe die Objekt-Dateien automatisch erstellt und konfiguriert werden können. Als Input für diesen Objekt-List-Creator dienen mehrere zur Verfügung gestellte MS-Excel Datein, die die aufbereiteten Objektdaten aus der astronomischen Datenbank SIMBAD enthalten.
+Dieses Repository enthält optional auch einen separaten Object-List-Creator, mit dessen Hilfe die Objekt-Dateien konfiguriert und automatisch erstellt werden können. Als Input für diesen Objekt-List-Creator dienen mehrere zur Verfügung gestellte Datenbank-Datein, die die aufbereiteten Objektdaten aus der astronomischen Datenbank SIMBAD enthalten. Es können jederzeit weitere Datenbank-Dateien manuell hinzugefügt werden.
 
 ---
 
 ## Features
 
 ### UniverseTrip
-- 3D-Visualisierung kosmischer Objekte vom Erde-Mond-System bishin zum sichtbaren Universum
+- 3D-Visualisierung kosmischer Objekte vom Erde-Mond-System bishin zum gesamten sichtbaren Universum
 - Intuitive Navigation mit der Maus und dem Mausrad durch den dreidimensionalen Raum
-- Dargestellte Objekte werden durch eine Objektdatei im CSV Format definiert
-- Die CSV-Objektdatei kann beliebig mit dem Object-List-Creator erstellt und manuell zusammengestellt und verändert werden
+- Dargestellte Objekte werden durch eine Objektdatei im CSV-Format definiert
+- Die CSV-Objektdatei kann je nach Bedürfnis beliebig mit dem Object-List-Creator erstellt und manuell verändert werden
 - Konfiguration der Anzeige über ein GUI
 
 ### UniverseTrip Object-List-Creator
-- Erstellung von Objektdatein auf Basis von auswählbarer Objektdatenbank-Datein
-- Filterfunktionen, um nur bestimmt Objekte zur berücksichtigen
+- Erstellung von Objektdatein auf Basis von auswählbarer Objektdatenbank-Dateien
+- Filterfunktionen, um nur bestimmt Objekte zu berücksichtigen
 - Benutzerdefinierter Dateiname für Ausgabedatei (Objektdatei)
 
 ---
 
 ## Projektstruktur
 
-/universe-trip/ 
-- /object_database/                    # Objektdatenbanken, als Input für die Erstellung der Objektdatein
-- /app_data/                           # Datein, die für die Ausführung des Programmes notwendig sind
-- UniverseTrip.py                      # Visualisierungsprogramm
-- UniverseTrip_ObjectListCreator.py    # Programm für die Generierung von Objektdatein
-- README.md                            # readme
-- LICENSE                              # Lizenzfile
+- /universe-trip/ 
+- .../object_database/                    # Objektdatenbanken, als Input für die Erstellung der Objektdatein
+- ...app_data/                            # Datein, die für die Ausführung des Programmes notwendig sind
+- ...UniverseTrip.py                      # Visualisierungsprogramm
+- ...UniverseTrip_ObjectListCreator.py    # Programm für die Generierung von Objektdatein
+- ...README.md                            # readme
+- ...LICENSE                              # Lizenzfile
+- ....gitignore                           # .gitignore file
+- ...objects_HR.csv                       # Objekt-Datei für den HR Katalog
+- ...objects_Messier.csv                  # Objekt-Datei für den Messier Katalog
+- ...objects_NGC.csv                      # Objekt-Datei für den NGC Katalog
 
 ---
 
