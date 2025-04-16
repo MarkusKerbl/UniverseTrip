@@ -70,14 +70,14 @@ Die angezeigten Objekte werden in einer objects_*.csv Datei definiert. Eine Obje
 
 ### 2. Visualisierung starten
 - UniverseTrip.py öffnen
-- Objectdatei auswählen
+- Objektdatei auswählen
 - Konfiguration der Anzeigeoptionen
 - Mit Klick auf Button "GO!" wird die Visualisierung im Standardbrwoser geöffnet. Das Laden kann je nach Anzahl der Objekte und Rechenleistung mehrere Sekunden dauern. Bitte um etwas Geduld.
 
 ---
 ## Mitgelieferte Objektdaten
 FÜr die Erstellung der Objektdaten sind im Ordner "/object_database/" Objektdaten aus verschiedenen astronomischen Katalogen zur Verfügung gestellt.
-Um das Programm auf einfache Art direkt verwenden zu können, sind im Ordner "/UniverseTrip/" bereits beispielhafte Objektdatein mit dem Namen "objects_xxx.csv" zu finden.  
+Um das Programm auf einfache Art direkt verwenden zu können, sind im Ordner Projektverzeichnis bereits beispielhafte Objektdatein mit dem Namen "objects_xxx.csv" zu finden.  
 
 objects_Solarsystem.csv - Objekte des Sonnensystems
 objects_Supercluster.csv - Zusammenstellung der Galaxienhaufen
@@ -89,27 +89,29 @@ objects_UniverseTrip.csv - UniverseTrip Zusammenstellung (Zusammenfassung der sc
 ---
 
 ## Format der Objektdatein
-### Objekt Datein
-Die CSV-Datei muss folgende Spalten enthalten:
-id – Objekt-ID
-V – Visuelle Helligkeit
-distLj_mean – Mittlere Entfernung in Lichtjahren
-objType – Objekttyp
-galX, galY, galZ – Galaktische Koordinaten
-Beispiel findest du unter data/example.csv.
+### Objektdateien
+Die Objektdateien müssen im .csv Format vorliegen (Trennzeichen ",") und folgende Spalten enthalten:
+- object_name --> Name des Objekts
+- galactic_l_deg --> Galaktische Länge des Objekts in Grad
+- galactic_b_deg --> Galaktische Breite des Objekts in Grad
+- distance_to_sun_Lj --> Abstand zum Sonnensystem in Lichtjahren
+- brightness_mag --> Visuelle Helligkeit in Magnituden
+- object_type --> Objekttyp
 
 ### Objektdatenbanken
-Die .xlsx Datei sollte folgende Spalten enthalten:
-id – Objekt-ID
-V – Visuelle Helligkeit
-distLj_mean – Mittlere Entfernung in Lichtjahren
-objType – Objekttyp
-galX, galY, galZ – Galaktische Koordinaten
-Beispiel findest du unter data/example.csv.
+Die Objektdatenbank Datei muss im .xlsx Format vorliegen.
+Die Daten müssen in einem Tabellenblatt namens "Consolidation" enthalten sein.
+Das Tabellenblatt muss folgende Spalten enthalten:
+- id --> Name des Objektes
+- otype --> Objekttyp laut Simbad Datenbank
+- ra --> RA Koordinate in Grad
+- dec --> DEC Koordinate in Grad
+- distLj_mean --> Entfernung in Lichtjahren
+- V --> Visuelle Helligkeit in Magnituden
 
 ---
 ## Lizenz
-GPL – siehe LICENSE.
+GNU General Public License, Version 3 (GPL v3) – siehe LICENSE Datei.
 
 ---
 ## Mitmachen
