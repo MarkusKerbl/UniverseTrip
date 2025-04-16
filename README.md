@@ -47,24 +47,26 @@ Dieses Repository enthält optional auch einen separaten Object-List-Creator, mi
 Installation unter Windows:
 - Download und Installation von Python über https://www.python.org/downloads/
 - Öffnen der Eingabeaufforderung
-- Navigation zum Ordner, in der PIP.exe enthalten ist über cd XXXXX/
+- Navigation zum Ordner, in der PIP.exe enthalten ist. Typischer Weise "cd C:\Users\"USER"\AppData\Local\Programs\Python\Python313\Scripts"
 - Installation der notwendigen Zusatzpakete über die Befehle
-- pip - install ....
-
-
+- pip install pandas
+- pip install plotly
+- pip install numpy
+- pip install pillow
+- pip install astropy
 - Öffnen des Visualisierungsprogramms und des Object-List-Creators per Doppelklick auf die .py Datei.
 
 ---
 
 ## Verwendung
 ### 1. Objektdatei erstellen (optional)
-Die angezeigten Objekte werden in einer Objects_X.csv Datei definiert. Eine Objektdatei kann manuell durch zusammenkopieren von vorhanden Objektdatein erstellt werden oder Toolunterstützt mit dem UniverseTrip_ObjectListCreator.py.
+Die angezeigten Objekte werden in einer objects_*.csv Datei definiert. Eine Objektdatei kann manuell durch Zusammenkopieren von vorhanden Objektdatein erstellt werden oder Toolunterstützt mit dem UniverseTrip_ObjectListCreator.py.
 
  - UniverseTrip_ObjectListCreator.py öffnen
  - Datenbankdatei aus dem Ordner /object_database/ öffnen
  - Konfiguration, welche Objekte in die object_x.csv Datei übernommen werden sollen
- - Definition der Objekt-Datei
- - Durch Klick auf XXXXXXX wird die Objektdatei erstellt.
+ - Definition des Namnes der Objektdatei
+ - Durch Klick auf "Create file" wird die Objektdatei erstellt
 
 ### 2. Visualisierung starten
 - UniverseTrip.py öffnen
