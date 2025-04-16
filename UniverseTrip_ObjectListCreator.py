@@ -243,22 +243,29 @@ otype_mapping = {
 
 # Mapping für lesbare Namen
 otype_display_names = {
-    "KS": "Kugelsternhaufen",
-    "OS": "Offener Sternhaufen",
-    "undefined": "Undefinierte Objekte",
-    "GN": "Galaktische Nebel",
-    "PN": "Planetarische Nebel",
-    "Star": "Sterne",
-    "GX": "Galaxien"
+    "KS": "Globular clusters",
+    "OS": "Open star cluster",
+    "undefined": "Undefined objects",
+    "GN": "galactic nebulae",
+    "PN": "Planetary nebulae",
+    "Star": "Stars",
+    "GX": "Galaxies"
 }
 
 # Liste der verfügbaren Objekttypen
 available_types = list(set(otype_mapping.values()))
 
 def select_file():
-    file_path.set(filedialog.askopenfilename(filetypes=[("Excel-Dateien", "*.xlsx")]))
+    path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
+    if path:
+        file_path.set(path)
+        selected_option.set("manual")  # Markiere die manuelle Auswahl
     if not file_path.get():
-        file_path.set("Keine Datei ausgewählt")
+        file_path.set("No File selected")
+
+def update_file_path():
+    if selected_option.get() != "manual":
+        file_path.set(standard_files[selected_option.get()])
 
 # Funktion zur Verarbeitung der Datei basierend auf der Auswahl
 def process_file():
@@ -268,19 +275,19 @@ def process_file():
         min_dist = float(entry_min_dist.get())
         max_dist = float(entry_max_dist.get())
     except ValueError:
-        messagebox.showerror("Fehler", "Bitte gültige Zahlen für die Helligkeit und Entfernung eingeben! Kommazeichen ist '.' (Punkt).")
+        messagebox.showerror("Error", "Bitte gültige Zahlen für die Helligkeit und Entfernung eingeben! Comma symbol is '.' (point).")
         return
 
     output_filename = entry_filename.get().strip()
     if not output_filename:
-        messagebox.showerror("Fehler", "Bitte einen gültigen Dateinamen eingeben!")
+        messagebox.showerror("Error", "Bitte einen gültigen Dateinamen eingeben!")
         return
     if not output_filename.endswith(".csv"):
         output_filename += ".csv"
 
     selected_types = [otype for otype, var in checkboxes.items() if var.get()]
     if not selected_types:
-        messagebox.showwarning("Warnung", "Bitte mindestens einen Objekttyp auswählen!")
+        messagebox.showwarning("Warning", "Bitte mindestens einen Objekttyp auswählen!")
         return
 
     #file_path = "NGC_Objects.xlsx"  # Datei wird durch GUI ausgewählt
@@ -291,13 +298,12 @@ def process_file():
     galactic_coords = coords.galactic
 
     # Neue Spalten mit umgerechneten Werten
-    df["galaktische länge"] = galactic_coords.l.deg
-    df["galaktische breite"] = galactic_coords.b.deg
+    df["galactic_l"] = galactic_coords.l.deg
+    df["galactic_b"] = galactic_coords.b.deg
 
     # Objekttypen umbenennen und nach Auswahl filtern
     df["otype"] = df["otype"].replace(otype_mapping)
     df = df[df["otype"].isin(selected_types)]
-
     # Filter nach Helligkeit (V-Wert)
     df = df[(df["V"] >= min_v) & (df["V"] <= max_v)]
 
@@ -307,16 +313,16 @@ def process_file():
     if exclude_zero_distance_var.get():
         df = df[df["distLj_mean"] > 0.0]  # Entfernt Objekte mit Distance = 0.0
     
-    if filter_stars_var.get():
-        df = df[~df["id"].astype(str).str.contains(r"\S+\s+\S+\s+\S+")]  # Erkennung von IDs mit zwei nicht direkt aufeinanderfolgenden Leerzeichen
+    #if filter_stars_var.get():
+    #    df = df[~df["id"].astype(str).str.contains(r"\S+\s+\S+\s+\S+")]  # Erkennung von IDs mit zwei nicht direkt aufeinanderfolgenden Leerzeichen
 
     # Relevante Spalten für die CSV-Ausgabe auswählen
-    output_df = df[["id", "galaktische länge", "galaktische breite", "distLj_mean", "V", "otype"]]
+    output_df = df[["id", "galactic_l", "galactic_b", "distLj_mean", "V", "otype"]]
     output_df.columns = ["object_name", "galactic_l_deg", "galactic_b_deg", "distance_to_sun_Lj", "brightness_mag", "object_type"]
 
     # Als CSV speichern
     output_df.to_csv(output_filename, index=False, encoding="utf-8")
-    messagebox.showinfo("Erfolg", f"Die Datei {output_filename} wurde erfolgreich erstellt!")
+    messagebox.showinfo("Success", f"The file {output_filename} was successfully created!")
 
 
 """
@@ -328,7 +334,7 @@ GUI erstellen
 root = tk.Tk()
 root.title("UniverseTrip - Object list creator")
 root.iconbitmap("app_data/favicon.ico")
-root.geometry("500x800")   # Größeres Fenster
+root.geometry("600x900")   # Größeres Fenster
 
 # --- Fenster zentrieren ---
 root.update_idletasks()
@@ -353,6 +359,13 @@ style.map("TCheckbutton",
       background=[("active", "#3a3a3a"), ("!active", "#2b2b2b")],
       indicatorcolor=[("selected", "#4CAF50"), ("!selected", "#aaaaaa")],
       foreground=[("selected", "white"), ("!selected", "#aaaaaa")])
+style.configure("TRadiobutton", 
+    font=("Arial", 11),
+    background="#2b2b2b",
+    foreground="white")
+style.map("TRadiobutton",
+    background=[("active", "#3a3a3a"), ("!active", "#2b2b2b")],
+    foreground=[("disabled", "#666666"), ("selected", "white")])
 
 frame = ttk.Frame(root)
 
@@ -361,17 +374,39 @@ header = tk.Label(root, text="UniverseTrip\nObject list creator",image=photo, co
 header.image = photo
 header.pack(fill="x", padx=10, pady=10)
 
+# ----- Standard-Dateien -----
+standard_files = {
+    "db1": "./object_database/database_HR.xlsx",
+    "db2": "./object_database/database_M.xlsx",
+    "db3": "./object_database/database_NGC.xlsx",
+}
+
+selected_option = tk.StringVar(value="manual")
+file_path = tk.StringVar(value="No file selected.")
 
 # ---------- Dateiauswahl ----------
-file_frame = tk.LabelFrame(root, text="1. Datendatei auswählen", padx=10, pady=10)
+file_frame = tk.LabelFrame(root, text="1. Select database file", padx=10, pady=10)
 file_frame.pack(fill="x", padx=20, pady=5)
 
-file_path = tk.StringVar(value="Keine Datei ausgewählt")
+# Radiobuttons für Standarddateien
+radio_frame = tk.Frame(file_frame)
+radio_frame.pack(anchor="w", pady=5)
+
+ttk.Radiobutton(radio_frame, text="HR catalogue - All Stars until 6.5mag (bare eyes visible)", variable=selected_option, value="db1", command=update_file_path).pack(anchor="w")
+ttk.Radiobutton(radio_frame, text="Messier catalogue - Catalogue created by Charles Messier", variable=selected_option, value="db2", command=update_file_path).pack(anchor="w")
+ttk.Radiobutton(radio_frame, text="NGC catalogue - New General Catalogue of Nebulae and Clusters of Stars", variable=selected_option, value="db3", command=update_file_path).pack(anchor="w")
+ttk.Radiobutton(radio_frame, text="Manual selection", variable=selected_option, value="manual").pack(anchor="w")
 tk.Label(file_frame, textvariable=file_path, wraplength=420, height=3, justify="left").pack(anchor="w")
-tk.Button(file_frame, text="Datendatei auswählen", font=("Arial", 12, "bold"), command=select_file).pack(anchor="e", pady=5)
+
+# Button zur manuellen Auswahl
+tk.Button(file_frame, text="Select file", font=("Arial", 12, "bold"), command=select_file).pack(anchor="e", pady=5)
+
+#file_path = tk.StringVar(value="No file selected.")
+#tk.Label(file_frame, textvariable=file_path, wraplength=420, height=3, justify="left").pack(anchor="w")
+#tk.Button(file_frame, text="Select file", font=("Arial", 12, "bold"), command=select_file).pack(anchor="e", pady=5)
 
 # ---------- Checkboxen ----------
-options_frame = tk.LabelFrame(root, text="2. Darzustellende Objekte wählen", padx=10, pady=10)
+options_frame = tk.LabelFrame(root, text="2. Select output options", padx=10, pady=10)
 options_frame.pack(fill="x", padx=20, pady=5)
 
 checkboxes = {}
@@ -383,17 +418,17 @@ for otype in available_types:
     checkboxes[otype] = var
 
 #Checkbox für Distance 0 ausblenden
-exclude_zero_distance_var = tk.BooleanVar(value=False)
-chk_exclude_zero_distance = ttk.Checkbutton(options_frame, text="Objekte mit Entfernung = 0 ausblenden", variable=exclude_zero_distance_var)
+exclude_zero_distance_var = tk.BooleanVar(value=True)
+chk_exclude_zero_distance = ttk.Checkbutton(options_frame, text="Include also objects with distance = 0", variable=exclude_zero_distance_var)
 chk_exclude_zero_distance.pack(anchor="w")
 
 # Checkbox für das Filtern einzelner Sterne aus Sternhaufen
-filter_stars_var = tk.BooleanVar(value=False)
-chk_filter_stars = ttk.Checkbutton(options_frame, text="Einzelne Sterne aus Sternhaufen entfernen", variable=filter_stars_var)
-chk_filter_stars.pack(anchor="w")
+#filter_stars_var = tk.BooleanVar(value=False)
+#chk_filter_stars = ttk.Checkbutton(options_frame, text="Einzelne Sterne aus Sternhaufen entfernen", variable=filter_stars_var)
+#chk_filter_stars.pack(anchor="w")
 
 # ---------- Datenwerte ----------
-minmax_frame = tk.LabelFrame(root, text="3. Minimale und Maximale Datenwerte für darzustellende Objekte auswählen", padx=10, pady=10)
+minmax_frame = tk.LabelFrame(root, text="3. Select minimal and maximal data values for objects", padx=10, pady=10)
 minmax_frame.pack(fill="x", padx=20, pady=5)
 
 # Neuen Frame für Grid-Anordnung erstellen
@@ -401,13 +436,13 @@ values_frame = tk.Frame(minmax_frame, bg="#2b2b2b")
 values_frame.pack(fill="x", padx=0, pady=0)
 
 # Eingabefelder für Helligkeitsbereich
-ttk.Label(values_frame, text="Minimale Helligkeit:").grid(row=0, column=0, sticky="w", padx=0, pady=0)
+ttk.Label(values_frame, text="Minimal brightness:").grid(row=0, column=0, sticky="w", padx=0, pady=0)
 entry_max_v = ttk.Entry(values_frame, justify="right")
 entry_max_v.grid(row=0, column=1, sticky="e", padx=0, pady=0)
 entry_max_v.insert(0, "25")  # Standardwert
 ttk.Label(values_frame, text="mag").grid(row=0, column=3, sticky="w", padx=5, pady=0)
 
-ttk.Label(values_frame, text="Maximale Helligkeit:").grid(row=1, column=0, sticky="w", padx=0, pady=0)
+ttk.Label(values_frame, text="Maximal brightness:").grid(row=1, column=0, sticky="w", padx=0, pady=0)
 entry_min_v = ttk.Entry(values_frame, justify="right")
 entry_min_v.grid(row=1, column=1, sticky="e", padx=0, pady=0)
 entry_min_v.insert(0, "-2.0")  # Standardwert
@@ -419,19 +454,19 @@ ttk.Label(values_frame, text="mag").grid(row=1, column=3, sticky="w", padx=5, pa
 ttk.Label(values_frame, text="", background="#2b2b2b").grid(row=2, column=0, columnspan=2, pady=5)
 
 # Eingabefelder für Entfernungsbereich
-ttk.Label(values_frame, text="Minimale Entfernung:").grid(row=3, column=0, sticky="w", padx=0, pady=0)
+ttk.Label(values_frame, text="Minimal distance:").grid(row=3, column=0, sticky="w", padx=0, pady=0)
 entry_min_dist = ttk.Entry(values_frame, justify="right")
 entry_min_dist.grid(row=3, column=1, sticky="e", padx=0, pady=0)
 entry_min_dist.insert(0, "0.0")  # Standardwert
-ttk.Label(values_frame, text="Lichtjahre").grid(row=3, column=3, sticky="w", padx=5, pady=0)
+ttk.Label(values_frame, text="Lightyears").grid(row=3, column=3, sticky="w", padx=5, pady=0)
 
-ttk.Label(values_frame, text="Maximale Entfernung:").grid(row=4, column=0, sticky="w", padx=0, pady=0)
+ttk.Label(values_frame, text="Maximal distance:").grid(row=4, column=0, sticky="w", padx=0, pady=0)
 entry_max_dist = ttk.Entry(values_frame, justify="right")
 entry_max_dist.grid(row=4, column=1, sticky="e", padx=0, pady=0)
 entry_max_dist.insert(0, "1000000000")  # Standardwert
-ttk.Label(values_frame, text="Lichtjahre").grid(row=4, column=3, sticky="w", padx=5, pady=0)
+ttk.Label(values_frame, text="Lightyears").grid(row=4, column=3, sticky="w", padx=5, pady=0)
 
-start_frame = tk.LabelFrame(root, text="3. Datendatei erstellen", padx=10, pady=10)
+start_frame = tk.LabelFrame(root, text="3. Create datafile", padx=10, pady=10)
 start_frame.pack(fill="x", padx=20, pady=10)
 
 # Neuen Frame für Grid-Anordnung erstellen
@@ -439,7 +474,7 @@ startvalues_frame = tk.Frame(start_frame, bg="#2b2b2b")
 startvalues_frame.pack(fill="x", padx=0, pady=0)
 
 # Eingabefeld für den Dateinamen
-ttk.Label(startvalues_frame, text="Dateiname für die Ausgabe (CSV):").grid(row=0, column=0, sticky="w", padx=0, pady=0)
+ttk.Label(startvalues_frame, text="Dateiname für die Ausgabe:").grid(row=0, column=0, sticky="w", padx=0, pady=0)
 entry_filename = ttk.Entry(startvalues_frame)
 entry_filename.grid(row=0, column=1, sticky="e", padx=0, pady=0)
 entry_filename.insert(0, "objects_x.csv")  # Standardwert
