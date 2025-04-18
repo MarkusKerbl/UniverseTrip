@@ -1,11 +1,3 @@
-#Installationsanleitung
-#Download and install Python
-#Eingabeaufforderung öffnen
-#cd C:\Users\"USER"\AppData\Local\Programs\Python\Python313\Scripts
-#pip install pandas
-#pip install plotly
-#pip install numpy
-
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
@@ -22,11 +14,18 @@ import base64
 from PIL import Image
 from io import BytesIO
 
-# Abstand der Sonne vom galaktischen Zentrum in LJ
+#*************************************************
+# Constants
+#*************************************************
+
+# Distance from Sun to galactic core in LJ
 SONNEN_ABSTAND = 27000
 
+#*************************************************
+# Functions for the program
+#*************************************************
 
-#Milchstrasse mit Spiralarmen erstellen: Funktion spiral_arm und rotate_points
+#Create Milky way with speral arms: Function spiral_arm und rotate_points
 def spiral_arm(a, b, theta_min, theta_max, num_points, center_shift=27000, spread=10000):
     """
     Erstellt Punkte entlang eines logarithmischen Spiralarms mit Breite.
@@ -43,7 +42,7 @@ def spiral_arm(a, b, theta_min, theta_max, num_points, center_shift=27000, sprea
     z = [random.gauss(0, 400) for _ in range(num_points)]  # Zufällige Höhenabweichung
     return x, y, z
 
-#Spiralarme der Milchstrasse rotieren
+#Rotate spiral arms around the center of the galaxy
 def rotate_points(x, y, angle, center_x=27000):
     """
     Rotiert Punkte um ein verschobenes Zentrum.
@@ -66,9 +65,7 @@ def rotate_points(x, y, angle, center_x=27000):
     y_final = y_rotated
     return x_final, y_final
 
-
-
-#Fügt den Kreisen um die Sonne die Abstandsinformation hinzu
+#Add distance labels to the circles around the sun
 def add_distance_labels(data, radii, earth_x=0.00001585501251):
     """
     Fügt den Kreisen um die Sonne Textbeschriftungen mit den Abständen hinzu.
@@ -102,7 +99,7 @@ def add_distance_labels(data, radii, earth_x=0.00001585501251):
         )
     return data
 
-#Rotation berechnen, um die Verdrehung der Planetenbahnen gegenüber der Galaktischen x-Ebene zu berechnen
+#Calculate the rotation of the coordinates around the x- and y-axis for the planets
 def rotate_coordinates(x, y, z, angle_x, angle_y):
     """
     Dreht die Koordinaten um die x- und y-Achsen.
@@ -141,9 +138,7 @@ def rotate_coordinates(x, y, z, angle_x, angle_y):
     
     return rotated[0], rotated[1], rotated[2]
 
-
-
-#Planetenbahnen hinzufügen
+#Add planet orbits around the sun
 def add_planet_orbits(orbits):
     """
     Erstellt Planetenbahnen als Kreise um die Sonne in der z=0-Ebene.
@@ -182,7 +177,7 @@ def add_planet_orbits(orbits):
     
     return orbit_data
 
-#Umrechnen der galaktischen Koordinaten und Abstand in x,y,z Koordinaten
+#Calculate x, y, z coordinates from galactic coordinates
 def galactic_to_cartesian(l, b, d):
     """
     Konvertiert galaktische Koordinaten (l, b, d) in kartesische Koordinaten (x, y, z),
@@ -194,6 +189,7 @@ def galactic_to_cartesian(l, b, d):
     z = d * np.sin(b_rad)
     return x, y, z
 
+# Show an error message in a popup window
 def show_error(message):
     """Zeigt eine Fehlermeldung als Popup-Fenster an."""
     root = tk.Tk()
@@ -201,7 +197,7 @@ def show_error(message):
     messagebox.showerror("Fehler", message)
     root.destroy()
 
-#Laden der Objekte aus dem CSV File
+#Load objects from a CSV file
 def load_objects_from_csv(file_path):
     """
     Lädt die Objekte aus einer CSV-Datei und berechnet ihre kartesischen Koordinaten.
@@ -228,7 +224,7 @@ def load_objects_from_csv(file_path):
     data["x"], data["y"], data["z"] = x, y, z
     return data
 
-#Kreise um die Sonne erstellen für die Abstandsinformation
+#KCreate circles around the sun with given radii
 def create_circles(radii, num_points=360, earth_x=0.00001585501251):
     """
     Erstellt Kreise um die Sonne mit angegebenen Radien.
@@ -251,24 +247,19 @@ def create_circles(radii, num_points=360, earth_x=0.00001585501251):
         circles.append((x, y, z))
     return circles
 
-"""
-*************************************************
-3D-Darstellung der Objekte aus der CSV-Datei.
-*************************************************
-"""
-
+#*************************************************
+# Create the 3D visualization of the objects in the universe
+#*************************************************
 def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_distances, show_legend):
 
-    """
-    *************************************************
-    Figure - Layout
-    *************************************************
-    """
+    #*************************************************
+    # Figure - Layout
+    #*************************************************
 
-    # Initiale Achsenbereiche
+    # Initial axis range for the 3D plot at startup
     axis_range = [-100000, 100000]
 
-    # Layout des Diagramms mit angepassten Achsen
+    # Definition of the Layout of the figure
     layout = go.Layout(
         #title=dict(text="UniverseTrip", font=dict(size=35), x=0, y=0.98, xref="paper", yref="paper"), # Titel wird durch Bild ersetzt
         font = dict(color="rgb(140,140,140)", size=13),
@@ -500,17 +491,11 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
         ]#end annotation
     )#end go.layout
 
-
-
-    """
-    *************************************************
-    Figure - Data
-    *************************************************
-    """
-
-
-           
-    # Sonne im Ursprung des galaktischen Koordinatensystems hinzufügen
+    #*************************************************
+    #Figure - Data
+    #*************************************************
+      
+    # Add sun in the center of the universe
     data = [
         go.Scatter3d(
             x=[0], y=[0], z=[0],
@@ -525,15 +510,15 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
         )
     ]
 
-    #Kosmische Struktur hinzufügen
-    # Universumsgröße in Lichtjahren
-    universe_size = 93000000000  # 93 Milliarden Lichtjahre
-    radius = universe_size / 2  # Radius der Kugel
+    #Add the cosmic structure
+    # Range of the universe in light years
+    universe_size = 93000000000  # 93 Mrd Lj (diameter of the observable universe)
+    radius = universe_size / 2  # Radius of the universe
 
-    # Anzahl der Punkte (mehr Punkte für bessere Struktur)
+    # Amount of points in the cosmic structure
     num_points = 100000  
 
-    # Anzahl der Filamente und Startpunkte
+    # Amount of filaments in the cosmic structure
     num_filaments = 1000  
     start_points = []
     while len(start_points) < num_filaments:
@@ -542,7 +527,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
             start_points.append((x, y, z))
     start_points = np.array(start_points)
 
-    # Filamente generieren
+    # Create filaments
     points = []
     for x, y, z in start_points:
         for _ in range(num_points // num_filaments):
@@ -569,7 +554,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
             )
         )
 
-    # Ende Kosmische Struktur
+    # End of the cosmic structure creation
     
     """
     # Milchstraßenscheibe erstellen
@@ -590,7 +575,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
         )
     )
     """
-    # Galaxienclusterbezeichnungen hinzufügen
+    # Adding galaxy clusters names
     for cluster in clusters:
         name, l, b, distance = cluster
         x, y, z = galactic_to_cartesian(l, b, distance)
@@ -609,16 +594,16 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
             )
         )
     
-    # Parameter für die vier Spiralarme
+    # Parameter for the spiral arms
     spiral_params = [
         {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
         {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
         {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
         {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
     ]
-    # Rotationswinkel für die Spiralarme (in Radiant)
+    # Rotation angles for the spiral arms (in radians)
     angles = [0, math.pi / 2, math.pi, 3 * math.pi / 2]
-    # Daten für Spiralarme erstellen
+    # Create data for the spiral arms
     center_shift = 27000
     for i, (params, angle) in enumerate(zip(spiral_params, angles)):
         x, y, z = spiral_arm(**params, center_shift=center_shift)
@@ -634,7 +619,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
             )
         )
 
-    # Planetenbahnen generieren und orientieren
+    # Create planet orbits around the sun
     planet_orbits = add_planet_orbits(orbits)
     for orbit in planet_orbits:
         x_rot, y_rot, z_rot = rotate_coordinates(
@@ -655,7 +640,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
             )
         )
         
-    #Strich in Richtung Milchstrassenzentrum hinzufügen
+    # Create line from earth to the galactic center
     if show_orientationline:
         data.append(
             go.Scatter3d(
@@ -670,7 +655,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
         )
     
     
-    #Strich für die Erdachse zum Himmelsnordpol und Südpol hinzufügen
+    #Create line from earth to the celestial poles
     if show_earthaxis:
         erde_gal_laenge = 0 #Galaktische Koordinaten der Erde um Striche zum Himmelsnord/Suedpol einzeichnen zu können
         erde_gal_breite = 0
@@ -714,7 +699,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
         )
     
     
-    #Milchstrassen Zentrum hinzufügen
+    # Add milky way center
     data.append(
         go.Scatter3d(
             x=[SONNEN_ABSTAND], y=[0], z=[0],
@@ -729,7 +714,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
         )
     ) 
 
-    # Kreise um die Sonne hinzufügen
+    # Add circles around the sun for distances
     if show_distances:
         circle_radii = [0.0000001, 0.000001, 0.00001, 0.0001,
                         0.001,0.005,
@@ -763,7 +748,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
         # Textbeschriftungen für die Kreise um die Sonne (Abstände) hinzufügen
         data = add_distance_labels(data, circle_radii)
 
-    # Kreis um die Sonne hinzufügen für Sichtbarkeitsgrenzen
+    # Add visibility limits circles around the sun
     if show_visibility_limits:
         circle_radii_eye = [9000,2537000,283887000,999000000]  # Radien in Lichtjahren
         circle_radii_eye_labels = ["Visibility limit - single stars with naked eye",
@@ -798,11 +783,11 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
                )
             )
         
-    #Planetenbahnen hinzufügen
+    # Add planet orbits around the sun
     planet_orbits = add_planet_orbits(orbits)
     data.extend(planet_orbits)
     
-    # Objekte hinzufügen
+    # Add objects to the plot
     colors = {"Star": "yellow", "OS": "blue", "KS": "green", "GX": "red", "PN": "grey", "GN": "orange", "Satelite": "orange", "Planet": "white", "GxCl1": "white", "GxCl2": "white", "GxCl3": "white", "GxCl4": "white", "GxCl1_LAN": "yellow", "GxCl2_LAN": "yellow", "GxCl3_LAN": "yellow", "GxCl4_LAN": "yellow"}
 
 
@@ -819,7 +804,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
             name=obj_type
         ))
 
-    # Linien von den Objekten zur z=0 Ebene hinzufügen
+    # Add lines from the objects to the galactic plane
     if show_lines:
         x_solid, y_solid, z_solid = [], [], []  # Für durchgezogene Linien (z >= 0)
         x_dash, y_dash, z_dash = [], [], []  # Für gestrichelte Linien (z < 0)
@@ -864,7 +849,7 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
     *************************************************
     """
     
-    # Diagramm erstellen
+    # Create the figure with the data and layout
     fig = go.Figure(data=data, layout=layout)
 
     """
@@ -891,26 +876,26 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
             borderwidth=1                        # Rahmenbreite
         )
     )
-    # Layout anpassen für fullscreen
+    # Update layout in full screen mode
     fig.update_layout(
         autosize=True,
         margin=dict(l=10, r=10, t=10, b=10),  # Minimale Ränder
     )
 
-    # Mouse hover anpassen
+    # Mouse hover definition
     fig.update_layout(
         hovermode='closest'
     )
 
 
-    # Bild laden und als base64 encodieren
+    # Loading image and encoding it to base64
     img = Image.open("app_data/Logo_small_text.png")
     buffer = BytesIO()
     img.save(buffer, format="PNG")
     encoded_image = base64.b64encode(buffer.getvalue()).decode()
 
     
-    # Titelbild einfügen
+    # Add Title picture
     fig.update_layout(
         images=[dict(
             source="data:image/png;base64," + encoded_image,
@@ -924,9 +909,9 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
         )]
     )
     
-    # Copyright Vermerk hinzufügen
+    # Add copyright text
     fig.add_annotation(
-        text="© 2025 Markus Kerbl<br>Version 1.0.0 - 08 April 2025<br>Special thanks to: ChatCPT and SIMBAD Astronomical Database - CDS (Strasbourg)",  # Der Copyright-Text
+        text="© 2025 Markus Kerbl<br>Version 1.0.0 - 08 April 2025<br>Special thanks to: SIMBAD Astronomical Database - CDS (Strasbourg)",  # Der Copyright-Text
         xref="paper", yref="paper",          # Koordinaten relativ zur Plotfläche
         x=0, y=0,                            # Unten links
         #xanchor="left", yanchor="bottom",
@@ -935,13 +920,9 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
         font=dict(size=12, color="rgb(140,140,140)")     # Schriftgröße und Farbe
      )
 
-
-
-    """
-    *************************************************
-    Figure - Zeigen
-    *************************************************
-    """
+    #*************************************************
+    # Show figure in browser
+    #*************************************************
 
     config = {'displayModeBar':True,
               'displaylogo':False} #Modebar konfigurieren
@@ -949,12 +930,9 @@ def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_
     fig.show(config=config)
     #pio.write_html(fig, "UniverseTrip.html") #HTML File schreiben
 
-"""
-*************************************************
-GUI creation
-*************************************************
-"""
-
+#*************************************************
+# GUI creation
+#*************************************************
 def start_gui():
     root = tk.Tk()
     root.title("UniverseTrip - Configuration")
@@ -1062,12 +1040,9 @@ def start_gui():
 
     root.mainloop()
 
-"""
-*************************************************
-Main program
-*************************************************
-"""
-    
+#*************************************************
+# Main program
+#*************************************************  
 def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_distances, show_legend):
     # Pfad zur CSV-Datei
     #file_path = "objects_UniverseTrip.csv"  #Dateipfad zur Datendatei, not needed any more bercause this will be defined in GUI
