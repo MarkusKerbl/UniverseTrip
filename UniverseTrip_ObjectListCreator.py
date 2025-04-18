@@ -257,11 +257,14 @@ available_types = list(set(otype_mapping.values()))
 
 def select_file():
     path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
-    if path:
-        file_path.set(path)
-        selected_option.set("manual")  # Markiere die manuelle Auswahl
-    if not file_path.get():
-        file_path.set("No File selected")
+    
+    if not path:
+        file_path.set("No file selected.")
+        #messagebox.showerror("Fehler", "Bitte einen gültigen Dateinamen auswählen!")
+        return
+
+    file_path.set(path)
+    selected_option.set("manual")  # Markiere die manuelle Auswahl
 
 def update_file_path():
     if selected_option.get() != "manual":
@@ -275,12 +278,12 @@ def process_file():
         min_dist = float(entry_min_dist.get())
         max_dist = float(entry_max_dist.get())
     except ValueError:
-        messagebox.showerror("Error", "Bitte gültige Zahlen für die Helligkeit und Entfernung eingeben! Comma symbol is '.' (point).")
+        messagebox.showerror("Error", "Please use a valid number for brightness and distance! Comma symbol is '.' (point).")
         return
 
     output_filename = entry_filename.get().strip()
     if not output_filename:
-        messagebox.showerror("Error", "Bitte einen gültigen Dateinamen eingeben!")
+        messagebox.showerror("Error", "Please select a valid filename!")
         return
     if not output_filename.endswith(".csv"):
         output_filename += ".csv"
@@ -291,7 +294,16 @@ def process_file():
         return
 
     #file_path = "NGC_Objects.xlsx"  # Datei wird durch GUI ausgewählt
-    df = pd.read_excel(file_path.get(), sheet_name="Consolidation")
+    try:
+        df = pd.read_excel(file_path.get(), sheet_name="Consolidation")
+    except FileNotFoundError:
+        messagebox.showerror("Error", "No file found.")
+        return
+    except ValueError:
+        # Wenn das Arbeitsblatt nicht gefunden wird, eine Fehlermeldung anzeigen
+        messagebox.showerror("Error", "The worksheet 'Consolidation' is not available in the file.")
+        return
+
 
     # RA und DEC in galaktische Koordinaten umrechnen
     coords = SkyCoord(ra=df["ra"].values * u.deg, dec=df["dec"].values * u.deg, frame="icrs")
