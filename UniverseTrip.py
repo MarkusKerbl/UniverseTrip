@@ -250,7 +250,7 @@ def create_circles(radii, num_points=360, earth_x=0.00001585501251):
 #*************************************************
 # Create the 3D visualization of the objects in the universe
 #*************************************************
-def plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_distances, show_legend):
+def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_distances, show_legend):
 
     #*************************************************
     # Figure - Layout
@@ -1075,7 +1075,7 @@ def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis,
     ]
     
     # 3D-Darstellung
-    plot_objects_and_milky_way(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_distances, show_legend)
+    create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_distances, show_legend)
 
 if __name__ == "__main__":
     start_gui()
