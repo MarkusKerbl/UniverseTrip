@@ -8,6 +8,8 @@ from PIL import Image, ImageTk
 
 # Mapping table for object types
 otype_mapping = {
+    "Satelite": "Satelite",
+    "Planet": "Planet",
     "*": "Star",
     "Ma*": "Star",
     "Ma?": "Star",
