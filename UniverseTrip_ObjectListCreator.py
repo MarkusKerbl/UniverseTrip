@@ -1,6 +1,3 @@
-# install astropy:
-# pip install astropy
-
 import pandas as pd
 from astropy.coordinates import SkyCoord
 import astropy.units as u
@@ -9,7 +6,7 @@ from tkinter import ttk, messagebox
 from tkinter import filedialog
 from PIL import Image, ImageTk
 
-# Mapping-Tabelle für Objekttypen
+# Mapping table for object types
 otype_mapping = {
     "*": "Star",
     "Ma*": "Star",
@@ -241,7 +238,7 @@ otype_mapping = {
     0: "undefined"
 }
 
-# Mapping für lesbare Namen
+# Mapping for real object types to display names, these names are used in the GUI
 otype_display_names = {
     "KS": "Globular clusters",
     "OS": "Open star cluster",
@@ -252,7 +249,7 @@ otype_display_names = {
     "GX": "Galaxies"
 }
 
-# Liste der verfügbaren Objekttypen
+# List of the available object types
 available_types = list(set(otype_mapping.values()))
 
 def select_file():
@@ -270,7 +267,7 @@ def update_file_path():
     if selected_option.get() != "manual":
         file_path.set(standard_files[selected_option.get()])
 
-# Funktion zur Verarbeitung der Datei basierend auf der Auswahl
+# Function to process the file and create the output CSV
 def process_file():
     try:
         min_v = float(entry_min_v.get())
@@ -305,50 +302,51 @@ def process_file():
         return
 
 
-    # RA und DEC in galaktische Koordinaten umrechnen
+    # convert RA and Dec to Galactic coordinates
     coords = SkyCoord(ra=df["ra"].values * u.deg, dec=df["dec"].values * u.deg, frame="icrs")
     galactic_coords = coords.galactic
 
-    # Neue Spalten mit umgerechneten Werten
+    # New columns with galactic coordinates
     df["galactic_l"] = galactic_coords.l.deg
     df["galactic_b"] = galactic_coords.b.deg
 
-    # Objekttypen umbenennen und nach Auswahl filtern
+    # Replace object types with names which are needed for the UniverseTrip app
     df["otype"] = df["otype"].replace(otype_mapping)
     df = df[df["otype"].isin(selected_types)]
-    # Filter nach Helligkeit (V-Wert)
+    # Filter by brightness
     df = df[(df["V"] >= min_v) & (df["V"] <= max_v)]
 
-    # Filter nach Entfernung (distLj_mean), 0.0 wird ausgeschlossen
+    # Filter by distance
     df = df[(df["distLj_mean"] >= 0.0) & (df["distLj_mean"] >= min_dist) & (df["distLj_mean"] <= max_dist)]
 
+    # In case of distance = 0.0 and option is enabled, remove the object from the list
     if exclude_zero_distance_var.get():
         df = df[df["distLj_mean"] > 0.0]  # Entfernt Objekte mit Distance = 0.0
     
+    # Optional: Filter out stars from star clusters by checking for two spaces in the Name
     #if filter_stars_var.get():
     #    df = df[~df["id"].astype(str).str.contains(r"\S+\s+\S+\s+\S+")]  # Erkennung von IDs mit zwei nicht direkt aufeinanderfolgenden Leerzeichen
 
-    # Relevante Spalten für die CSV-Ausgabe auswählen
+    # Define the columns for the output file
     output_df = df[["id", "galactic_l", "galactic_b", "distLj_mean", "V", "otype"]]
     output_df.columns = ["object_name", "galactic_l_deg", "galactic_b_deg", "distance_to_sun_Lj", "brightness_mag", "object_type"]
 
-    # Als CSV speichern
+    # Save as .csv file
     output_df.to_csv(output_filename, index=False, encoding="utf-8")
     messagebox.showinfo("Success", f"The file {output_filename} was successfully created!")
 
 
-"""
-*************************************************
-GUI erstellen
-*************************************************
-"""
+
+#*************************************************
+# GUI erstellen
+#*************************************************
 
 root = tk.Tk()
 root.title("UniverseTrip - Object list creator")
 root.iconbitmap("app_data/favicon.ico")
 root.geometry("600x900")   # Größeres Fenster
 
-# --- Fenster zentrieren ---
+# Center window on screen
 root.update_idletasks()
 width = root.winfo_width()
 height = root.winfo_height()
@@ -356,12 +354,12 @@ x = (root.winfo_screenwidth() // 2) - (width // 2)
 y = (root.winfo_screenheight() // 2) - (height // 2)
 root.geometry(f"+{x}+{y}")
 
-# PNG-Bild laden
+# Load the logo image
 image = Image.open("app_data/Logo_small.png")
 image = image.resize((60, 60)) # Größe anpassen
 photo = ImageTk.PhotoImage(image)
 
-# --- Modernes Styling ---
+# Modern design with dark theme
 root.tk_setPalette(background="#2b2b2b", foreground="white")  # Dunkles Theme
 style = ttk.Style()
 style.configure("TButton", font=("Arial", 12), padding=6, relief="flat", background="#4CAF50", foreground="white")
@@ -381,12 +379,12 @@ style.map("TRadiobutton",
 
 frame = ttk.Frame(root)
 
-# ---------- Header ----------
+# Header
 header = tk.Label(root, text="UniverseTrip\nObject list creator",image=photo, compound="left", padx= 13, justify="left", font=("Arial", 20, "bold"), anchor="w")
 header.image = photo
 header.pack(fill="x", padx=10, pady=10)
 
-# ----- Standard-Dateien -----
+# List of standard catalouge files
 standard_files = {
     "db1": "./object_database/database_HR.xlsx",
     "db2": "./object_database/database_M.xlsx",
@@ -396,11 +394,11 @@ standard_files = {
 selected_option = tk.StringVar(value="manual")
 file_path = tk.StringVar(value="No file selected.")
 
-# ---------- Dateiauswahl ----------
+# File selection
 file_frame = tk.LabelFrame(root, text="1. Select database file", padx=10, pady=10)
 file_frame.pack(fill="x", padx=20, pady=5)
 
-# Radiobuttons für Standarddateien
+# Radiobuttons for standard files
 radio_frame = tk.Frame(file_frame)
 radio_frame.pack(anchor="w", pady=5)
 
@@ -410,14 +408,14 @@ ttk.Radiobutton(radio_frame, text="NGC catalogue - New General Catalogue of Nebu
 ttk.Radiobutton(radio_frame, text="Manual selection", variable=selected_option, value="manual").pack(anchor="w")
 tk.Label(file_frame, textvariable=file_path, wraplength=420, height=3, justify="left").pack(anchor="w")
 
-# Button zur manuellen Auswahl
+# Buttons for manual file selection
 tk.Button(file_frame, text="Select file", font=("Arial", 12, "bold"), command=select_file).pack(anchor="e", pady=5)
 
 #file_path = tk.StringVar(value="No file selected.")
 #tk.Label(file_frame, textvariable=file_path, wraplength=420, height=3, justify="left").pack(anchor="w")
 #tk.Button(file_frame, text="Select file", font=("Arial", 12, "bold"), command=select_file).pack(anchor="e", pady=5)
 
-# ---------- Checkboxen ----------
+# Checkboxes
 options_frame = tk.LabelFrame(root, text="2. Select output options", padx=10, pady=10)
 options_frame.pack(fill="x", padx=20, pady=5)
 
@@ -429,7 +427,7 @@ for otype in available_types:
     chk.pack(anchor="w")
     checkboxes[otype] = var
 
-#Checkbox für Distance 0 ausblenden
+# Checkbox for excluding objects with distance = 0.0
 exclude_zero_distance_var = tk.BooleanVar(value=True)
 chk_exclude_zero_distance = ttk.Checkbutton(options_frame, text="Include also objects with distance = 0", variable=exclude_zero_distance_var)
 chk_exclude_zero_distance.pack(anchor="w")
@@ -439,15 +437,15 @@ chk_exclude_zero_distance.pack(anchor="w")
 #chk_filter_stars = ttk.Checkbutton(options_frame, text="Einzelne Sterne aus Sternhaufen entfernen", variable=filter_stars_var)
 #chk_filter_stars.pack(anchor="w")
 
-# ---------- Datenwerte ----------
+# Set min and max values for brightness and distance
 minmax_frame = tk.LabelFrame(root, text="3. Select minimal and maximal data values for objects", padx=10, pady=10)
 minmax_frame.pack(fill="x", padx=20, pady=5)
 
-# Neuen Frame für Grid-Anordnung erstellen
+# Create a new frame for the grid layout
 values_frame = tk.Frame(minmax_frame, bg="#2b2b2b")
 values_frame.pack(fill="x", padx=0, pady=0)
 
-# Eingabefelder für Helligkeitsbereich
+# Input fields for brightness range
 ttk.Label(values_frame, text="Minimal brightness:").grid(row=0, column=0, sticky="w", padx=0, pady=0)
 entry_max_v = ttk.Entry(values_frame, justify="right")
 entry_max_v.grid(row=0, column=1, sticky="e", padx=0, pady=0)
@@ -462,10 +460,10 @@ ttk.Label(values_frame, text="mag").grid(row=1, column=3, sticky="w", padx=5, pa
 
 
 
-#Leerzeile
+# Add empty line between the two sections
 ttk.Label(values_frame, text="", background="#2b2b2b").grid(row=2, column=0, columnspan=2, pady=5)
 
-# Eingabefelder für Entfernungsbereich
+# Input fields for distance range
 ttk.Label(values_frame, text="Minimal distance:").grid(row=3, column=0, sticky="w", padx=0, pady=0)
 entry_min_dist = ttk.Entry(values_frame, justify="right")
 entry_min_dist.grid(row=3, column=1, sticky="e", padx=0, pady=0)
@@ -481,11 +479,11 @@ ttk.Label(values_frame, text="Lightyears").grid(row=4, column=3, sticky="w", pad
 start_frame = tk.LabelFrame(root, text="3. Create datafile", padx=10, pady=10)
 start_frame.pack(fill="x", padx=20, pady=10)
 
-# Neuen Frame für Grid-Anordnung erstellen
+# New frame for the grid layout
 startvalues_frame = tk.Frame(start_frame, bg="#2b2b2b")
 startvalues_frame.pack(fill="x", padx=0, pady=0)
 
-# Eingabefeld für den Dateinamen
+# Input field for the output filename
 ttk.Label(startvalues_frame, text="Name of the object file:").grid(row=0, column=0, sticky="w", padx=0, pady=0)
 entry_filename = ttk.Entry(startvalues_frame)
 entry_filename.grid(row=0, column=1, sticky="e", padx=0, pady=0)
@@ -493,4 +491,5 @@ entry_filename.insert(0, "objects_x.csv")  # Standardwert
 
 tk.Button(start_frame, text="Create file", font=("Arial", 12, "bold"), bg="#4CAF50", fg="white", command=process_file).pack(anchor="e", pady=10)
 
+# Main loop to ceep the window open
 root.mainloop()
