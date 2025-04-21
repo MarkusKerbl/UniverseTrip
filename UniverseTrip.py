@@ -788,7 +788,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
     data.extend(planet_orbits)
     
     # Add objects to the plot
-    colors = {"Star": "yellow", "OS": "blue", "KS": "green", "GX": "red", "PN": "grey", "GN": "orange", "Satelite": "orange", "Planet": "white", "GxCl1": "white", "GxCl2": "white", "GxCl3": "white", "GxCl4": "white", "GxCl1_LAN": "yellow", "GxCl2_LAN": "yellow", "GxCl3_LAN": "yellow", "GxCl4_LAN": "yellow"}
+    colors = {"Star": "yellow", "OS": "blue", "KS": "green", "GX": "red", "PN": "grey", "GN": "orange", "Satelite": "orange", "Planet": "white", "GxCl1": "white", "GxCl2": "white", "GxCl3": "white", "GxCl4": "white", "GxCl1_LAN": "yellow", "GxCl2_LAN": "yellow", "GxCl3_LAN": "yellow", "GxCl4_LAN": "yellow", "void": "grey"}
 
 
     for obj_type, group in objects.groupby("object_type"):
