@@ -437,7 +437,7 @@ for idx, otype in enumerate(available_types):
     display_name = otype_display_names.get(otype, otype)  # Falls kein Mapping vorhanden, Originalname behalten
     var = tk.BooleanVar(value=True)
     chk = ttk.Checkbutton(options_frame, text=display_name, variable=var)
-    chk.grid(row=row, column=col, sticky="w", padx=5, pady=2)
+    chk.grid(row=row, column=col, sticky="w", padx=10, pady=2)
     checkboxes[otype] = var
 
     col += 1
@@ -448,32 +448,14 @@ for idx, otype in enumerate(available_types):
 # Checkbox for excluding objects with distance = 0.0
 exclude_zero_distance_var = tk.BooleanVar(value=True)
 chk_exclude_zero_distance = ttk.Checkbutton(options_frame, text="Include also objects with distance = 0", variable=exclude_zero_distance_var)
-chk_exclude_zero_distance.grid(row=row + 1, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+chk_exclude_zero_distance.grid(row=row + 1, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 
-
-'''
-# Checkboxes
-options_frame = tk.LabelFrame(root, text="2. Select output options", padx=10, pady=10)
-options_frame.pack(fill="x", padx=20, pady=5)
-
-checkboxes = {}
-for otype in available_types:
-    display_name = otype_display_names.get(otype, otype)  # Falls kein Mapping vorhanden, Originalname behalten
-    var = tk.BooleanVar(value=True)
-    chk = ttk.Checkbutton(options_frame, text=display_name, variable=var)
-    chk.pack(anchor="w")
-    checkboxes[otype] = var
-
-# Checkbox for excluding objects with distance = 0.0
-exclude_zero_distance_var = tk.BooleanVar(value=True)
-chk_exclude_zero_distance = ttk.Checkbutton(options_frame, text="Include also objects with distance = 0", variable=exclude_zero_distance_var)
-chk_exclude_zero_distance.pack(anchor="w")
 
 # Checkbox für das Filtern einzelner Sterne aus Sternhaufen
 #filter_stars_var = tk.BooleanVar(value=False)
 #chk_filter_stars = ttk.Checkbutton(options_frame, text="Einzelne Sterne aus Sternhaufen entfernen", variable=filter_stars_var)
-#chk_filter_stars.pack(anchor="w")
-'''
+#chk_filter_stars.grid(row=row + 2, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+
 # Set min and max values for brightness and distance
 minmax_frame = tk.LabelFrame(root, text="3. Select minimal and maximal data values for objects", padx=10, pady=10)
 minmax_frame.pack(fill="x", padx=20, pady=5)
