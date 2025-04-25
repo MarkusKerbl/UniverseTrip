@@ -322,7 +322,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
                         )]#end args
                     ),#end dict
                     dict(
-                        label="±10 Mio Lj (Local Groupe)",
+                        label="±10 Mio Lj (Local Group)",
                         method="relayout",
                         args=["scene", dict(
                             xaxis=dict(range=[-10000000, 10000000],visible=False),
