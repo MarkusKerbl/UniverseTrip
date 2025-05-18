@@ -792,7 +792,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
 
 
     for obj_type, group in objects.groupby("object_type"):
-        color = colors.get(obj_type, "white")
+        color = colors.get(obj_type, "grey")  # Default color if type not found
         data.append(go.Scatter3d(
             x=group["x"], y=group["y"], z=group["z"],
             mode='markers+text' if show_markertext else 'markers',
