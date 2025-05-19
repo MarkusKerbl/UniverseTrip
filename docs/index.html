@@ -47,6 +47,28 @@ title: UniverseTrip
     .badges img {
       margin-right: 0.5rem;
     }
+
+    .download-links {
+      display: flex;
+      gap: 2rem;
+      margin-top: 2rem;
+      align-items: center;
+    }
+
+    .download-links a {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      color: #ddd;
+      font-family: monospace;
+    }
+
+    .download-links img {
+      width: 64px;
+      height: auto;
+      display: block;
+      margin: 0 auto 0.5rem;
+    }
   </style>
 </head>
 <body>
@@ -74,6 +96,22 @@ title: UniverseTrip
     <a class="button" href="https://github.com/MarkusKerbl/UniverseTrip" target="_blank">
       🔗 Zum GitHub-Repository
     </a>
+
+    <section style="margin-top: 3rem;">
+      <h2>📦 Downloads</h2>
+      <p>Du kannst UniverseTrip hier als Archiv herunterladen:</p>
+
+      <div class="download-links">
+        <a href="UniverseTrip.tar.gz" download>
+          <img src="https://pages-themes.github.io/slate/assets/images/folder.png" alt="tar.gz">
+          <span>tar.gz</span>
+        </a>
+        <a href="UniverseTrip.zip" download>
+          <img src="https://pages-themes.github.io/slate/assets/images/folder.png" alt="zip">
+          <span>.zip</span>
+        </a>
+      </div>
+    </section>
   </main>
 </body>
 </html>
