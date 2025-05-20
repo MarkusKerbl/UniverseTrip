@@ -77,7 +77,7 @@ title: UniverseTrip
     </section>
     
     <a class="button" href="https://github.com/MarkusKerbl/UniverseTrip" target="_blank">
-      🔗 Zum GitHub-Repository
+      🔗 Zum GitHub-Repository neu
     </a>
 
     
