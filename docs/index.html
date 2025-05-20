@@ -68,12 +68,14 @@ title: UniverseTrip
       <h2>Features</h2>
         <p>
           <ul>
-            <li>3D visualization of cosmic objects from the Earth-Moon system to the entire observable universe</li>
-            <li>Intuitive navigation through the three-dimensional space using the mouse and scroll wheel</li>
-            <li>Configuration of the display via a graphical user interface (GUI)</li>
-            <li>Displayed objects are defined by an object file in .csv format</li>
-            <li>An UniverseTrip object file with the most common objects as well as different atronomical catalogues are provided</li>
-            <li>New object files can be freely created using the Object List Creator tool. Object data are available in the Simbad-database</li>
+            <li>3D visualization of cosmic objects in the observable universe.</li>
+            <li>Freely zoomable from the Earth-Moon system to the entire observable universe.</li>
+            <li>Intuitive navigation using the mouse and scroll wheel./li>
+            <li>Configuration of the display via a graphical user interface (GUI).</li>
+            <li>Displayed objects are defined by an editable object file in .csv format.</li>
+            <li>Object files with the most common objects as well as different atronomical catalogues are available.</li>
+            <li>New object files can be freely created using the Object List Creator tool.</li>
+            <li>Object data from the astronomical Simbad-database can be used.</li>
           </ul>
         </p>
     </section>
@@ -82,9 +84,9 @@ title: UniverseTrip
         <p>
           There are three ways to run the UniverseTrip program:
           <ul>
-            <li>Run the program online via the link above. The shown objects are fixed.</li>
-            <li>Download the executable .exe-file from /docs/UniverseTrip.exe and run in on your Windows computer.</li>
-            <li>Download the UniverseTrip repository and run the UniverseTrip.py code. Nessesary libraries needs to be installed separately.</li>
+            <li>Run the program online via the link above. The shown objects cannot be modified.</li>
+            <li>Download the executable .exe-file from /docs/UniverseTrip.exe and run it.</li>
+            <li>Download the UniverseTrip repository and run the UniverseTrip.py code. Python and nessesary libraries needs to be installed separately.</li>
           </ul>
           <p>
             <strong>Note:</strong> To run the UniverseTrip.py code, you need to install python and the needed libraries:
@@ -98,6 +100,7 @@ title: UniverseTrip
                 <li>pip install pillow</li>
                 <li>pip install astropy</li>
               </ul>
+              <li>Run the UniverseTrip.py code by double click on the file.</li>
             </ul>
 
         </p>
@@ -105,9 +108,27 @@ title: UniverseTrip
     <section style="margin-top: 3rem;">
       <h2>Using the Software</h2>
         <p>
-          To start the program, double-click the UniverseTrip.exe file or run the UniverseTrip.py code in a terminal.
-            <strong>Note:</strong> The program needs a few seconds to load the data and display the objects.
-          
+          To start the program, double-click the UniverseTrip.exe file or run the UniverseTrip.py code.
+        </p>
+        <p>
+          The program starts with the Graphical User Interface (GUI) where you can select the object file to be displayed. The GUI is divided into three sections:
+          <ul>
+            <li>Object file selection: Select the object file to be displayed.</li>
+            <li>Selection of the Display options.</li>
+            <li>Start the simulation.</li>
+        </p>
+        <p>
+          <strong>Note:</strong> The program needs a few seconds to load the data. Be patient.
+        </p>
+        <p>
+          The standard browser will open and the simulation will start. The simulation is controlled by the mouse and the scroll wheel:
+          <ul>
+            <li>Left mouse button: Rotate the view.</li>
+            <li>Right mouse button: Move the view.</li>
+            <li>Scroll wheel: Zoom in and out.</li>
+        </p>
+        <p>
+          With the buttons on the left side of the screen you can select the display scale.
         </p>
     </section>
   </main>
