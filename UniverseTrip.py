@@ -928,7 +928,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
               'displaylogo':False} #Modebar konfigurieren
    
     fig.show(config=config)
-    #pio.write_html(fig, "UniverseTrip.html") #HTML File schreiben
+    pio.write_html(fig, "UniverseTrip.html") #HTML File schreiben
 
 #*************************************************
 # GUI creation
