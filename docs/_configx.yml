@@ -1,8 +1,0 @@
-title: UniverseTrip
-description: Interaktive Darstellung des sichtbaren Universums
-show_downloads: true
-remote_theme: null
-destination: docs
-
-plugins:
-  - jekyll-feed
