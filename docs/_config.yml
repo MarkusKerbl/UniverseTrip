@@ -1,8 +1,5 @@
-title: UniverseTrip
-description: Interaktive Darstellung des sichtbaren Universums
+title: Slate theme
+description: Slate is a theme for GitHub Pages.
 show_downloads: true
-remote_theme: null
-destination: docs
-
-plugins:
-  - jekyll-feed
+google_analytics:
+theme: jekyll-theme-slate
