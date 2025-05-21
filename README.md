@@ -1,4 +1,4 @@
-# UniverseTrip - A trip into the structure of the universe
+# UniverseTrip - Experience the depth of space
 
 UniverseTrip ist ein interaktives 3D-Visualisierungsprogramm zur Darstellung kosmischer Objekte im gesamten sichtbaren Universum. 
 
