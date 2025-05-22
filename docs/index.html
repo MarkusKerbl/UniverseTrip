@@ -72,7 +72,7 @@ title: UniverseTrip
           <ul>
             <li>3D visualization of cosmic objects in the observable universe.</li>
             <li>Freely zoomable from the Earth-Moon system to the entire observable universe.</li>
-            <li>Intuitive navigation using the mouse and scroll wheel./li>
+            <li>Intuitive navigation using the mouse and scroll wheel.</li>
             <li>Configuration of the display via a graphical user interface (GUI).</li>
             <li>Displayed objects are defined by an editable object file in .csv format.</li>
             <li>Object files with the most common objects as well as different atronomical catalogues are available.</li>
@@ -88,7 +88,7 @@ title: UniverseTrip
           <ul>
             <li>Run the program online via the link above. The shown objects cannot be modified.</li>
             <li>Download the executable .exe-file from /docs/UniverseTrip.exe and run it.</li>
-            <li>Download the UniverseTrip repository and run the UniverseTrip.py code. Python and nessesary libraries needs to be installed separately.</li>
+            <li>Download the UniverseTrip repository and run the UniverseTrip.py code. Python and nessesary libraries need to be installed separately.</li>
           </ul>
           <p>
             <strong>Note:</strong> To run the UniverseTrip.py code, you need to install python and the needed libraries:
@@ -113,23 +113,21 @@ title: UniverseTrip
           To start the program, double-click the UniverseTrip.exe file or run the UniverseTrip.py code.
         </p>
         <p>
-          The program starts with the Graphical User Interface (GUI) where you can select the object file to be displayed. The GUI is divided into three sections:
-          <ul>
-            <li>Object file selection: Select the object file to be displayed.</li>
-            <li>Selection of the Display options.</li>
-            <li>Start the simulation.</li>
-          </ul>
-        </p>
+          The program starts with the Graphical User Interface (GUI) where you can select the object file to be displayed as well as some display options.
         <p>
           <strong>Note:</strong> The program needs a few seconds to load the data. Be patient.
+          <strong>Note:</strong> If the simulation is getting slow with big object files (>2000 objects), simply unselect the option to display the object names.
         </p>
         <p>
           The standard browser will open and the simulation will start. The simulation is controlled by the mouse and the scroll wheel:
           <ul>
             <li>Left mouse button: Rotate the view.</li>
-            <li>Right mouse button: Move the view.</li>
+            <li>Right mouse button: Pan the view.</li>
             <li>Scroll wheel: Zoom in and out.</li>
           </ul>
+        </p>
+        <p>
+          When using a smartphone or tablet, you need to switch between pan, zoom, and rotate using the modebar in the top right corner.
         </p>
         <p>
           With the buttons on the left side of the screen you can select the display scale.
@@ -141,11 +139,22 @@ title: UniverseTrip
           There are several object files provided with this repository. They are named objects_xxx.csv.
         </p>
         <p>
+          The standard object file named objects_UniverseTrip.csv contains:
+          <ul>
+            <li>All planets from the solar system.</li>
+            <li>The most distance sattelites.</li>
+            <li><a href="https://en.wikipedia.org/wiki/List_of_nearest_stars">The nearest 30 stars.</a></li>
+            <li><a href="https://de.wikipedia.org/wiki/Liste_der_hellsten_Sterne">The 100 brightest stars in the night sky.</a></li>
+            <li>All 110 Messier objects.</li>
+            <li>Most common galaxy groups, clusters, and superclusters, each containing many galaxies.</li>
+          </ul> 
+        </p>
+        <p>
           The displayed objects can be modified by editing the object file.
         </p>
         <p>
           To generate new object files, you can use an existing database file located in the /object-atabase/ folder. Or create a new
-          one by coyieng the object file and using the Simbad TAB Query provided in the .xlsx file.
+          one by copying the object file and using the Simbad TAB Query provided in the .xlsx file.
         </p>
         <p>
           After the database file is prepared, use the UniverseTrip_ObjectListCreator.py tool to create an object-file which contains only the objects what wanted objects.<br>
