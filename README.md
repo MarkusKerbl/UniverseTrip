@@ -46,13 +46,14 @@ This repository optionally includes a separate Object List Creator, which can be
 Installation on Windows:
 - Download and install Python from https://www.python.org/downloads/
 - Open the Command Prompt
-- Navigate to the folder containing pip.exe. Typically: cd C:\Users\"USER"\AppData\Local\Programs\Python\Python313\Scripts
+- Navigate to the folder containing pip.exe. Typically:  
+  `cd C:\Users\"USER"\AppData\Local\Programs\Python\Python313\Scripts`
 - Install the required packages using the following commands:
- - pip install pandas
- - pip install plotly
- - pip install numpy
- - pip install pillow
- - pip install astropy
+  - pip install pandas
+  - pip install plotly
+  - pip install numpy
+  - pip install pillow
+  - pip install astropy
 - Launch the visualization program and the Object List Creator by double-clicking the respective .py file.
 
 ---
