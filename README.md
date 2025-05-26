@@ -4,7 +4,7 @@ UniverseTrip is an interactive 3D visualization program for displaying cosmic ob
 
 ![Demo GIF](app_data/UniverseTrip_recording.gif)
 
-The displayed objects can be freely created and customized by the user via an object file. The objects are shown to scale in the correct position within three-dimensional space, making spatial relationships clearly visible. With intuitive mouse and scroll wheel controls, users can zoom and navigate from the Earth-Moon system all the way out to the observable universe. Once the display settings have been configured, the visualization program opens in the default web browser.
+The displayed objects can be freely created and customized by the user via an object file in .csv-format. The objects are shown to scale in the correct position within three-dimensional space, making spatial relationships clearly visible. With intuitive mouse and scroll wheel controls, users can zoom and navigate from the Earth-Moon system all the way out to the observable universe. Once the display settings have been configured, the visualization program opens in the default web browser.
 
 This repository optionally includes a separate Object List Creator, which can be used to configure and automatically generate the object files. As input, this Object List Creator uses several provided database files containing processed object data from the astronomical SIMBAD database. Additional database files can be manually added at any time. The Simbad-Database query are available in the database-files.
 
