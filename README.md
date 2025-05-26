@@ -1,118 +1,118 @@
 # UniverseTrip - Experience the depth of space
 
-UniverseTrip ist ein interaktives 3D-Visualisierungsprogramm zur Darstellung kosmischer Objekte im gesamten sichtbaren Universum. 
+UniverseTrip is an interactive 3D visualization program for displaying cosmic objects throughout the entire observable universe.
 
 ![Demo GIF](app_data/UniverseTrip_recording.gif)
 
-Die dargestellten Objekte können über eine Objekt-Datei vom Benutzer beliebig erstellt und angepasst werden. Die Objekte werden im dreidimensionalen Raum maßstabsgetreu an der richtigen Stelle dargestellt, sodass die räumlichen Zusammenhänge erkennbar werden. Mithilfe der intuitiven Bedienung mit der Maus und dem Mausrad, kann vom Erde-Mond System bishin zum sichtbaren Universum gezoomt und navigiert werden. Das Visualisierungsprogramm wird nach der Konfiguration der Anzeige im Standardbrwoser geöffnet.
+The displayed objects can be freely created and customized by the user via an object file. The objects are shown to scale in the correct position within three-dimensional space, making spatial relationships clearly visible. With intuitive mouse and scroll wheel controls, users can zoom and navigate from the Earth-Moon system all the way out to the observable universe. Once the display settings have been configured, the visualization program opens in the default web browser.
 
-Dieses Repository enthält optional auch einen separaten Object-List-Creator, mit dessen Hilfe die Objekt-Dateien konfiguriert und automatisch erstellt werden können. Als Input für diesen Objekt-List-Creator dienen mehrere zur Verfügung gestellte Datenbank-Datein, die die aufbereiteten Objektdaten aus der astronomischen Datenbank SIMBAD enthalten. Es können jederzeit weitere Datenbank-Dateien manuell hinzugefügt werden.
+This repository optionally includes a separate Object List Creator, which can be used to configure and automatically generate the object files. As input, this Object List Creator uses several provided database files containing processed object data from the astronomical SIMBAD database. Additional database files can be manually added at any time. The Simbad-Database query are available in the database-files.
 
 ---
 
 ## Features
 
 ### UniverseTrip
-- 3D-Visualisierung kosmischer Objekte vom Erde-Mond-System bishin zum gesamten sichtbaren Universum
-- Intuitive Navigation mit der Maus und dem Mausrad durch den dreidimensionalen Raum
-- Dargestellte Objekte werden durch eine Objektdatei im CSV-Format definiert
-- Die CSV-Objektdatei kann je nach Bedürfnis beliebig mit dem Object-List-Creator erstellt und manuell verändert werden
-- Konfiguration der Anzeige über ein GUI
+- 3D visualization of cosmic objects from the Earth-Moon system to the entire observable universe
+- Intuitive navigation through 3D space using the mouse and scroll wheel
+- Displayed objects are defined via an object file in CSV format
+- The CSV object file can be freely created and manually modified as needed using the Object List Creator
+- Display configuration via a graphical user interface (GUI)
 
 ### UniverseTrip Object-List-Creator
-- Erstellung von Objektdatein auf Basis von auswählbarer Objektdatenbank-Dateien
-- Filterfunktionen, um nur bestimmt Objekte zu berücksichtigen
-- Benutzerdefinierter Dateiname für Ausgabedatei (Objektdatei)
+- Creation of object files based on selectable object database files
+- Filtering functions to include only specific objects
+- User-defined filename for the output file (object file)
 
 ---
 
-## Projektstruktur
+## Project structure
 
-- /universe-trip/ 
-- .../object_database/                    # Objektdatenbanken, als Input für die Erstellung der Objektdatein
-- ...app_data/                            # Datein, die für die Ausführung des Programmes notwendig sind
-- ...UniverseTrip.py                      # Visualisierungsprogramm
-- ...UniverseTrip_ObjectListCreator.py    # Programm für die Generierung von Objektdatein
-- ...README.md                            # readme
-- ...LICENSE                              # Lizenzfile
-- ....gitignore                           # .gitignore file
-- ...objects_HR.csv                       # Objekt-Datei für den HR Katalog
-- ...objects_Messier.csv                  # Objekt-Datei für den Messier Katalog
-- ...objects_NGC.csv                      # Objekt-Datei für den NGC Katalog
-
+- /universe-trip/
+- .../object_database/    # Object databases used as input for generating object files
+- .../app_data/           # Files required to run the program
+- ...UniverseTrip.py      # Visualization program
+- ...UniverseTrip_ObjectListCreator.py # Program for generating object files
+- ...README.md            # Readme
+- ...LICENSE              # License file
+- ....gitignore           # .gitignore file
+- ...objects_HR.csv       # Object file for the HR catalog (all stars brighter then 6.5mag)
+- ...objects_Messier.csv  # Object file for the Messier catalog (Messier objects)
+- ...objects_NGC.csv      # Object file for the NGC catalog (NGC objects)
 ---
 
 ## Installation
 
-Installation unter Windows:
-- Download und Installation von Python über https://www.python.org/downloads/
-- Öffnen der Eingabeaufforderung
-- Navigation zum Ordner, in der PIP.exe enthalten ist. Typischer Weise "cd C:\Users\"USER"\AppData\Local\Programs\Python\Python313\Scripts"
-- Installation der notwendigen Zusatzpakete über die Befehle
-- pip install pandas
-- pip install plotly
-- pip install numpy
-- pip install pillow
-- pip install astropy
-- Öffnen des Visualisierungsprogramms und des Object-List-Creators per Doppelklick auf die .py Datei.
+Installation on Windows:
+- Download and install Python from https://www.python.org/downloads/
+- Open the Command Prompt
+- Navigate to the folder containing pip.exe. Typically: cd C:\Users\"USER"\AppData\Local\Programs\Python\Python313\Scripts
+- Install the required packages using the following commands:
+ - pip install pandas
+ - pip install plotly
+ - pip install numpy
+ - pip install pillow
+ - pip install astropy
+- Launch the visualization program and the Object List Creator by double-clicking the respective .py file.
 
 ---
 
-## Verwendung
-### 1. Objektdatei erstellen (optional)
-Die angezeigten Objekte werden in einer objects_*.csv Datei definiert. Eine Objektdatei kann manuell durch Zusammenkopieren von vorhanden Objektdatein erstellt werden oder Toolunterstützt mit dem UniverseTrip_ObjectListCreator.py.
+## Usage
+### 1. Create an Object File (optional)
+The displayed objects are defined in an objects_*.csv file. An object file can either be created manually by combining existing object files, or with tool support using UniverseTrip_ObjectListCreator.py.
 
- - UniverseTrip_ObjectListCreator.py öffnen
- - Datenbankdatei aus dem Ordner /object_database/ öffnen
- - Konfiguration, welche Objekte in die object_x.csv Datei übernommen werden sollen
- - Definition des Namnes der Objektdatei
- - Durch Klick auf "Create file" wird die Objektdatei erstellt
+- Open UniverseTrip_ObjectListCreator.py
+- Open a database file from the /object_database/ folder
+- Configure which objects should be included in the object_x.csv file
+- Define the name of the object file
+- Click on "Create file" to generate the object file
 
-### 2. Visualisierung starten
-- UniverseTrip.py öffnen
-- Objektdatei auswählen
-- Konfiguration der Anzeigeoptionen
-- Mit Klick auf Button "GO!" wird die Visualisierung im Standardbrwoser geöffnet. Das Laden kann je nach Anzahl der Objekte und Rechenleistung mehrere Sekunden dauern. Bitte um etwas Geduld.
+### 2. Start the Visualization
+- Open UniverseTrip.py
+- Select the object file
+- Configure the display options
 
----
-## Mitgelieferte Objektdaten
-FÜr die Erstellung der Objektdaten sind im Ordner "/object_database/" Objektdaten aus verschiedenen astronomischen Katalogen zur Verfügung gestellt.
-Um das Programm auf einfache Art direkt verwenden zu können, sind im Ordner Projektverzeichnis bereits beispielhafte Objektdatein mit dem Namen "objects_xxx.csv" zu finden.  
-
-objects_Solarsystem.csv - Objekte des Sonnensystems
-objects_Supercluster.csv - Zusammenstellung der Galaxienhaufen
-objects_NGC.csv - NGC Katalog (Alle Objekte des NGC Katalogs)
-objects_HR.csv - HR Katalog (Alle Sterne die Heller als 6,5mag sind)
-objects_M.csv - Messier Katalog (Alle Objekte des Messier Katalogs)
-objects_UniverseTrip.csv - UniverseTrip Zusammenstellung (Zusammenfassung der schönsten und erwähnenswerten Objekte sowie eine Darstellung der Superhaufen)
+Click the "GO!" button to launch the visualization in the default web browser. Depending on the number of objects and your system’s performance, loading may take several seconds. Please be patient.
 
 ---
 
-## Format der Objektdatein
-### Objektdateien
-Die Objektdateien müssen im .csv Format vorliegen (Trennzeichen ",") und folgende Spalten enthalten:
-- object_name --> Name des Objekts
-- galactic_l_deg --> Galaktische Länge des Objekts in Grad
-- galactic_b_deg --> Galaktische Breite des Objekts in Grad
-- distance_to_sun_Lj --> Abstand zum Sonnensystem in Lichtjahren
-- brightness_mag --> Visuelle Helligkeit in Magnituden
-- object_type --> Objekttyp
+## Included Object Data
 
-### Objektdatenbanken
-Die Objektdatenbank Datei muss im .xlsx Format vorliegen.
-Die Daten müssen in einem Tabellenblatt namens "Consolidation" enthalten sein.
-Das Tabellenblatt muss folgende Spalten enthalten:
-- id --> Name des Objektes
-- otype --> Objekttyp laut Simbad Datenbank
-- ra --> RA Koordinate in Grad
-- dec --> DEC Koordinate in Grad
-- distLj_mean --> Entfernung in Lichtjahren
-- V --> Visuelle Helligkeit in Magnituden
+To support object file creation, the `/object_database/` folder contains object data from various astronomical catalogs.  
+To allow easy and immediate use of the program, several example object files named `objects_xxx.csv` are already provided in the project directory:
+
+| File Name                    | Description                                                                 |
+|-----------------------------|-----------------------------------------------------------------------------|
+| `objects_Solarsystem.csv`   | Objects of the Solar System                                                 |
+| `objects_Supercluster.csv`  | Compilation of galaxy clusters                                              |
+| `objects_NGC.csv`           | NGC catalog (all objects from the NGC catalog)                              |
+| `objects_HR.csv`            | HR catalog (all stars brighter than 6.5 mag)                                |
+| `objects_M.csv`             | Messier catalog (all objects from the Messier catalog)                      |
+| `objects_UniverseTrip.csv` | UniverseTrip compilation (a selection of the most beautiful and noteworthy objects, including a representation of the superclusters) |
 
 ---
-## Lizenz
-GNU General Public License, Version 3 (GPL v3) – siehe LICENSE Datei.
+
+## Format of Object Files
+### Object Files  
+Object files must be in `.csv` format (delimiter: ",") and contain the following columns:  
+- `object_name` --> Name of the object  
+- `galactic_l_deg` --> Galactic longitude of the object in degrees  
+- `galactic_b_deg` --> Galactic latitude of the object in degrees  
+- `distance_to_sun_Lj` --> Distance to the solar system in light years  
+- `brightness_mag` --> Visual brightness in magnitudes  
+- `object_type` --> Object type  
+
+### Object Databases  
+The object database file must be in `.xlsx` format.  
+The data must be contained in a worksheet named **"Consolidation"**.  
+The worksheet must include the following columns:  
+- `id` --> Name of the object  
+- `otype` --> Object type according to the Simbad database  
+- `ra` --> RA coordinate in degrees  
+- `dec` --> DEC coordinate in degrees  
+- `distLj_mean` --> Distance in light years  
+- `V` --> Visual brightness in magnitudes  
 
 ---
-## Mitmachen
-Du hast Ideen oder Verbesserungsvorschläge? Gerne! Issues und Pull Requests sind willkommen!
+## License
+GNU General Public License, Version 3 (GPL v3) – see the LICENSE file.
