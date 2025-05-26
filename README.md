@@ -92,7 +92,7 @@ To allow easy and immediate use of the program, several example object files nam
 
 ---
 
-## Format of Object Files
+## File formats
 ### Object Files  
 Object files must be in `.csv` format (delimiter: ",") and contain the following columns:  
 - `object_name` --> Name of the object  
@@ -102,7 +102,7 @@ Object files must be in `.csv` format (delimiter: ",") and contain the following
 - `brightness_mag` --> Visual brightness in magnitudes  
 - `object_type` --> Object type  
 
-### Object Databases  
+### Databases Files  
 The object database file must be in `.xlsx` format.  
 The data must be contained in a worksheet named **"Consolidation"**.  
 The worksheet must include the following columns:  
