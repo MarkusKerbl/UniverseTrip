@@ -13,6 +13,8 @@ from PIL import Image, ImageTk
 import base64
 from PIL import Image
 from io import BytesIO
+import os
+import sys
 
 #*************************************************
 # Constants
@@ -25,6 +27,15 @@ SONNEN_ABSTAND = 27000
 # Functions for the program
 #*************************************************
 
+# Function to load the image from the resources
+# From: https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 #Create Milky way with speral arms: Function spiral_arm und rotate_points
 def spiral_arm(a, b, theta_min, theta_max, num_points, center_shift=27000, spread=10000):
     """
@@ -889,7 +900,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
 
 
     # Loading image and encoding it to base64
-    img = Image.open("app_data/Logo_small_text.png")
+    img = Image.open(resource_path("app_data/Logo_small_text.png"))
     buffer = BytesIO()
     img.save(buffer, format="PNG")
     encoded_image = base64.b64encode(buffer.getvalue()).decode()
@@ -936,7 +947,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
 def start_gui():
     root = tk.Tk()
     root.title("UniverseTrip - Configuration")
-    root.iconbitmap("app_data/favicon.ico")
+    root.iconbitmap(resource_path("app_data/favicon.ico"))
     root.geometry("500x570")   # Größeres Fenster
 
     # --- Center window ---
@@ -1002,7 +1013,7 @@ def start_gui():
         )
 
     # ---------- Logo ----------
-    image = Image.open("app_data/Logo_small.png")
+    image = Image.open(resource_path("app_data/Logo_small.png"))
     image = image.resize((60, 60)) # Größe anpassen
     photo = ImageTk.PhotoImage(image)
 
