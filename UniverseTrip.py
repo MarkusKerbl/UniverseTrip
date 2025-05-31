@@ -36,6 +36,7 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
+
 #Create Milky way with speral arms: Function spiral_arm und rotate_points
 def spiral_arm(a, b, theta_min, theta_max, num_points, center_shift=27000, spread=10000):
     """

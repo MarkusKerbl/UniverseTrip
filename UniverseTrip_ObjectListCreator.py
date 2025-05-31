@@ -5,6 +5,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter import filedialog
 from PIL import Image, ImageTk
+import os
+import sys
 
 # Mapping table for object types
 otype_mapping = {
@@ -239,6 +241,16 @@ otype_mapping = {
     0: "undefined"
 }
 
+# Function to load the image from the resources
+# From: https://stackoverflow.com/questions/31836104/pyinstaller-and-onefile-how-to-include-an-image-in-the-exe-file
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 # Mapping for real object types to display names, these names are used in the GUI
 otype_display_names = {
     "KS": "Globular clusters",
@@ -351,7 +363,7 @@ def process_file():
 
 root = tk.Tk()
 root.title("UniverseTrip - Object list creator")
-root.iconbitmap("app_data/favicon.ico")
+root.iconbitmap(resource_path("app_data/favicon.ico"))
 root.geometry("600x900")   # Größeres Fenster
 
 # Center window on screen
@@ -363,7 +375,7 @@ y = (root.winfo_screenheight() // 2) - (height // 2)
 root.geometry(f"+{x}+{y}")
 
 # Load the logo image
-image = Image.open("app_data/Logo_small.png")
+image = Image.open(resource_path("app_data/Logo_small.png"))
 image = image.resize((60, 60)) # Größe anpassen
 photo = ImageTk.PhotoImage(image)
 
