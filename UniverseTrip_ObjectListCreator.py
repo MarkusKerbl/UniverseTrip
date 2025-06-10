@@ -281,7 +281,7 @@ def select_file():
         return
 
     file_path.set(path)
-    selected_option.set("manual")  # Markiere die manuelle Auswahl
+    #selected_option.set("manual")  # Markiere die manuelle Auswahl
 
 def update_file_path():
     if selected_option.get() != "manual":
@@ -404,6 +404,15 @@ header = tk.Label(root, text="UniverseTrip\nObject list creator",image=photo, co
 header.image = photo
 header.pack(fill="x", padx=10, pady=10)
 
+
+# ---------- File selection ----------
+file_path = tk.StringVar(value="No file selected.")
+file_frame = tk.LabelFrame(root, text="1. Select object file", padx=10, pady=10)
+file_frame.pack(fill="x", padx=20, pady=5)
+
+tk.Label(file_frame, textvariable=file_path, wraplength=420, height=3, justify="left").pack(anchor="w")
+
+'''
 # List of standard catalouge files
 standard_files = {
     "db1": "./object_database/database_HR.xlsx",
@@ -427,7 +436,7 @@ ttk.Radiobutton(radio_frame, text="Messier catalogue - Catalogue created by Char
 ttk.Radiobutton(radio_frame, text="NGC catalogue - New General Catalogue of Nebulae and Clusters of Stars", variable=selected_option, value="db3", command=update_file_path).pack(anchor="w")
 ttk.Radiobutton(radio_frame, text="Manual selection", variable=selected_option, value="manual").pack(anchor="w")
 tk.Label(file_frame, textvariable=file_path, wraplength=420, height=3, justify="left").pack(anchor="w")
-
+'''
 # Buttons for manual file selection
 tk.Button(file_frame, text="Select file", font=("Arial", 12, "bold"), command=select_file).pack(anchor="e", pady=5)
 
