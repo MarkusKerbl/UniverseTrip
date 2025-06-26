@@ -1,6 +1,6 @@
 # UniverseTrip - Experience the depth of space
 
-UniverseTrip is an interactive 3D visualization program for displaying cosmic objects throughout the entire observable universe.
+UniverseTrip is a 3D visualization program for displaying the position of cosmic objects across the entire observable universe.
 
 ![Demo GIF](app_data/UniverseTrip_recording.gif)
 
@@ -39,6 +39,8 @@ This repository optionally includes a separate Object List Creator, which can be
 - ...objects_HR.csv       # Object file for the HR catalog (all stars brighter then 6.5mag)
 - ...objects_Messier.csv  # Object file for the Messier catalog (Messier objects)
 - ...objects_NGC.csv      # Object file for the NGC catalog (NGC objects)
+- ...objects_UniverseTrip.csv # UniverseTrip compilation (a selection of the most beautiful and noteworthy objects, including a representation of the superclusters)
+- ...objects_UniverseTrip_Highlights.csv # Same as UniverseTrip object list but with reduced objects
 ---
 
 ## Installation
