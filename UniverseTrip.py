@@ -77,6 +77,45 @@ def rotate_points(x, y, angle, center_x=27000):
     y_final = y_rotated
     return x_final, y_final
 
+def galactic_to_cartesian_andromeda(distance, l_deg, b_deg):
+    l = math.radians(l_deg)
+    b = math.radians(b_deg)
+
+    x = distance * math.cos(b) * math.cos(l)
+    y = distance * math.cos(b) * math.sin(l)
+    z = distance * math.sin(b)
+
+    return x, y, z
+
+def rotate_3d(x, y, z, angle_x=0, angle_y=0, angle_z=0):
+    cosx, sinx = math.cos(angle_x), math.sin(angle_x)
+    cosy, siny = math.cos(angle_y), math.sin(angle_y)
+    cosz, sinz = math.cos(angle_z), math.sin(angle_z)
+
+    x_new, y_new, z_new = [], [], []
+
+    for xi, yi, zi in zip(x, y, z):
+        # Rotation um X (Kippen)
+        y1 = yi * cosx - zi * sinx
+        z1 = yi * sinx + zi * cosx
+        x1 = xi
+
+        # Rotation um Y
+        x2 = x1 * cosy + z1 * siny
+        z2 = -x1 * siny + z1 * cosy
+        y2 = y1
+
+        # Rotation um Z (Drehen in Ebene)
+        x3 = x2 * cosz - y2 * sinz
+        y3 = x2 * sinz + y2 * cosz
+        z3 = z2
+
+        x_new.append(x3)
+        y_new.append(y3)
+        z_new.append(z3)
+
+    return x_new, y_new, z_new
+
 #Add distance labels to the circles around the sun
 def add_distance_labels(data, radii, earth_x=0.00001585501251):
     """
@@ -568,25 +607,6 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
 
     # End of the cosmic structure creation
     
-    """
-    # Milchstraßenscheibe erstellen
-    theta = [i * 2 * math.pi / 360 for i in range(360)]
-    radius = 50000
-    disc_x = [radius * math.cos(t) + SONNEN_ABSTAND for t in theta]
-    disc_y = [radius * math.sin(t) for t in theta]
-    disc_z = [0 for _ in theta]
-    
-    # Milchstraßenscheibe hinzufügen
-    data.append(
-        go.Scatter3d(
-            x=disc_x, y=disc_y, z=disc_z,
-            mode='lines',
-            line=dict(color='red', width=10),
-            name="Milchstraßenscheibe",
-            hoverinfo='skip'
-        )
-    )
-    """
     # Adding galaxy clusters names
     for cluster in clusters:
         name, l, b, distance = cluster
@@ -630,6 +650,51 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
                 hoverinfo='skip'
             )
         )
+
+    # Add Andromeda Galaxy in right position with right rotation
+
+    # Andromeda Position
+    andromeda_pos = galactic_to_cartesian_andromeda(2516063.4850713015, 121.17432906422938, -21.57330879852804)
+
+    andromeda_center = andromeda_pos 
+
+    for i, (params, angle) in enumerate(zip(spiral_params, angles)):
+        x, y, z = spiral_arm(
+            a=2000,  # größer als Milchstraße
+            b=0.25,
+            theta_min=0,
+            theta_max=4 * math.pi,
+            num_points=4000,
+            center_shift=0,  # wichtig! erst lokal erzeugen
+            spread=3000
+        )
+
+        # Erst wie bei Milchstraße Arme drehen
+        x, y = rotate_points(x, y, angle, center_x=0)
+
+        # Dann 3D Rotation (physikalische Orientierung)
+        x, y, z = rotate_3d(
+            x, y, z,
+            angle_x=math.radians(77),   # Neigung
+            angle_z=math.radians(38)    # Drehung
+        )
+
+        # Dann verschieben an echte Position
+        x = [xi + andromeda_center[0] for xi in x]
+        y = [yi + andromeda_center[1] for yi in y]
+        z = [zi + andromeda_center[2] for zi in z]
+
+        data.append(
+            go.Scatter3d(
+                x=x, y=y, z=z,
+                mode='markers',
+                marker=dict(size=1, color='rgb(200, 220, 255)'),  # leicht bläulich
+                showlegend=False,
+                name=f"Andromeda Arm {i+1}",
+                hoverinfo='skip'
+            )
+        )
+
 
     # Create planet orbits around the sun
     planet_orbits = add_planet_orbits(orbits)
@@ -712,7 +777,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
     
     
     # Add milky way center
-    data.append(
+    data.append( 
         go.Scatter3d(
             x=[SONNEN_ABSTAND], y=[0], z=[0],
             mode='markers+text' if show_markertext else 'markers',
