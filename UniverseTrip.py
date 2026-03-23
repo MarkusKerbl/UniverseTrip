@@ -411,7 +411,7 @@ def create_circles(radii, num_points=360, earth_x=0.00001585501251):
 #*************************************************
 # Create the 3D visualization of the objects in the universe
 #*************************************************
-def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_distances, show_legend):
+def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_andromeda, show_distances, show_legend):
 
     #*************************************************
     # Figure - Layout
@@ -762,7 +762,8 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         )
 
     # Add Andromeda Galaxy in right position with right rotation
-    create_andromeda(data, spiral_arm, rotate_points)
+    if(show_andromeda):
+        create_andromeda(data, spiral_arm, rotate_points)
 
     # Create planet orbits around the sun
     planet_orbits = add_planet_orbits(orbits)
@@ -1110,6 +1111,7 @@ def start_gui():
     earthaxis_var = tk.IntVar(value=0)
     orientationline_var = tk.IntVar(value=0)
     visibility_limits_var = tk.IntVar(value=1)
+    show_andromeda_var = tk.IntVar(value=1)
     distances_var = tk.IntVar(value=1)
     legend_var = tk.IntVar(value=0)  # Standard: Legende anzeigen
     file_path = tk.StringVar(value="objects_UniverseTrip.csv")
@@ -1130,6 +1132,7 @@ def start_gui():
             'show_earthaxis': bool(earthaxis_var.get()),
             'show_orientationline': bool(orientationline_var.get()),
             'show_visibility_limits': bool(visibility_limits_var.get()),
+            'show_andromeda': bool(show_andromeda_var.get()),
             'show_distances': bool(distances_var.get()),
             'show_legend': bool(legend_var.get())
         }
@@ -1141,7 +1144,8 @@ def start_gui():
             options["show_lines"], 
             options["show_earthaxis"], 
             options["show_orientationline"], 
-            options["show_visibility_limits"], 
+            options["show_visibility_limits"],
+            options["show_andromeda"], 
             options["show_distances"],
             options["show_legend"]
         )
@@ -1174,6 +1178,7 @@ def start_gui():
     ttk.Checkbutton(options_frame, text="Show Earth axis", variable=earthaxis_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show orientaton line Sun to Galactic center", variable=orientationline_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show visibility limits", variable=visibility_limits_var).pack(anchor="w")
+    ttk.Checkbutton(options_frame, text="Show Andromeda as Galaxy", variable=show_andromeda_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show distance circles", variable=distances_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show legend", variable=legend_var).pack(anchor="w")
 
@@ -1188,7 +1193,7 @@ def start_gui():
 #*************************************************
 # Main program
 #*************************************************  
-def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_distances, show_legend):
+def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_andromeda, show_distances, show_legend):
     # Pfad zur CSV-Datei
     #file_path = "objects_UniverseTrip.csv"  #Dateipfad zur Datendatei, not needed any more bercause this will be defined in GUI
 
@@ -1220,7 +1225,7 @@ def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis,
     ]
     
     # 3D-Darstellung
-    create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_distances, show_legend)
+    create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_andromeda, show_distances, show_legend)
 
 if __name__ == "__main__":
     start_gui()
