@@ -1083,7 +1083,7 @@ def start_gui():
     root = tk.Tk()
     root.title("UniverseTrip - Configuration")
     root.iconbitmap(resource_path("app_data/favicon.ico"))
-    root.geometry("500x570")   # Größeres Fenster
+    root.geometry("500x600")   # Größeres Fenster
 
     # --- Center window ---
     root.update_idletasks()
@@ -1178,7 +1178,7 @@ def start_gui():
     ttk.Checkbutton(options_frame, text="Show Earth axis", variable=earthaxis_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show orientaton line Sun to Galactic center", variable=orientationline_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show visibility limits", variable=visibility_limits_var).pack(anchor="w")
-    ttk.Checkbutton(options_frame, text="Show Andromeda as Galaxy", variable=show_andromeda_var).pack(anchor="w")
+    ttk.Checkbutton(options_frame, text="Show Andromeda simulated as galaxy", variable=show_andromeda_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show distance circles", variable=distances_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show legend", variable=legend_var).pack(anchor="w")
 
