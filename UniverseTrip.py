@@ -77,44 +77,154 @@ def rotate_points(x, y, angle, center_x=27000):
     y_final = y_rotated
     return x_final, y_final
 
-def galactic_to_cartesian_andromeda(distance, l_deg, b_deg):
-    l = math.radians(l_deg)
-    b = math.radians(b_deg)
+# Functions for Andromeda
+def create_andromeda(data, spiral_arm, rotate_points):
+    import math
+    import random
 
-    x = distance * math.cos(b) * math.cos(l)
-    y = distance * math.cos(b) * math.sin(l)
-    z = distance * math.sin(b)
+    # -----------------------------
+    # 1. Position (in Lichtjahren)
+    # -----------------------------
+    def galactic_to_cartesian(distance, l_deg, b_deg):
+        l = math.radians(l_deg)
+        b = math.radians(b_deg)
 
-    return x, y, z
+        x = distance * math.cos(b) * math.cos(l)
+        y = distance * math.cos(b) * math.sin(l)
+        z = distance * math.sin(b)
 
-def rotate_3d(x, y, z, angle_x=0, angle_y=0, angle_z=0):
-    cosx, sinx = math.cos(angle_x), math.sin(angle_x)
-    cosy, siny = math.cos(angle_y), math.sin(angle_y)
-    cosz, sinz = math.cos(angle_z), math.sin(angle_z)
+        return x, y, z
 
-    x_new, y_new, z_new = [], [], []
+    # Andromeda (Messier 31)
+    dx, dy, dz = galactic_to_cartesian(2516063.4850713015, 121.17432906422938, -21.57330879852804)
 
-    for xi, yi, zi in zip(x, y, z):
-        # Rotation um X (Kippen)
-        y1 = yi * cosx - zi * sinx
-        z1 = yi * sinx + zi * cosx
-        x1 = xi
+    # -----------------------------
+    # 2. Sichtlinien-Vektor (Erde → Andromeda)
+    # -----------------------------
+    length = math.sqrt(dx**2 + dy**2 + dz**2)
+    nx, ny, nz = dx/length, dy/length, dz/length
 
-        # Rotation um Y
-        x2 = x1 * cosy + z1 * siny
-        z2 = -x1 * siny + z1 * cosy
-        y2 = y1
+    # -----------------------------
+    # 3. Rotationsachse bestimmen
+    # (Z-Achse → Richtung Andromeda)
+    # -----------------------------
+    rx = -ny
+    ry = nx
+    rz = 0
 
-        # Rotation um Z (Drehen in Ebene)
-        x3 = x2 * cosz - y2 * sinz
-        y3 = x2 * sinz + y2 * cosz
-        z3 = z2
+    axis_len = math.sqrt(rx**2 + ry**2 + rz**2)
+    rx /= axis_len
+    ry /= axis_len
+    rz /= axis_len
 
-        x_new.append(x3)
-        y_new.append(y3)
-        z_new.append(z3)
+    angle_to_view = math.acos(nz)
 
-    return x_new, y_new, z_new
+    # -----------------------------
+    # 4. Rotation um beliebige Achse
+    # -----------------------------
+    def rotate_axis(x, y, z, ux, uy, uz, angle):
+        cos_a = math.cos(angle)
+        sin_a = math.sin(angle)
+
+        x_new, y_new, z_new = [], [], []
+
+        for xi, yi, zi in zip(x, y, z):
+            dot = ux*xi + uy*yi + uz*zi
+
+            x_rot = (xi * cos_a +
+                     (uy*zi - uz*yi) * sin_a +
+                     ux * dot * (1 - cos_a))
+
+            y_rot = (yi * cos_a +
+                     (uz*xi - ux*zi) * sin_a +
+                     uy * dot * (1 - cos_a))
+
+            z_rot = (zi * cos_a +
+                     (ux*yi - uy*xi) * sin_a +
+                     uz * dot * (1 - cos_a))
+
+            x_new.append(x_rot)
+            y_new.append(y_rot)
+            z_new.append(z_rot)
+
+        return x_new, y_new, z_new
+
+    # -----------------------------
+    # 5. Spiralparameter (größer als Milchstraße)
+    # -----------------------------
+    spiral_params = [
+        {"a": 2000, "b": 0.25, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 3000},
+        {"a": 2000, "b": 0.25, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 3000},
+        {"a": 2000, "b": 0.25, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 3000},
+        {"a": 2000, "b": 0.25, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 3000},
+    ]
+
+    angles = [0, math.pi/2, math.pi, 3*math.pi/2]
+
+    # -----------------------------
+    # 6. Arme erzeugen
+    # -----------------------------
+    for i, (params, angle) in enumerate(zip(spiral_params, angles)):
+
+        # Lokal erzeugen
+        x, y, z = spiral_arm(**params, center_shift=0)
+
+        # -----------------------------
+        # SKALIERUNG (220.000 Lj Durchmesser)
+        # -----------------------------
+        a = params["a"]
+        b = params["b"]
+        theta_max = params["theta_max"]
+
+        r_max = a * math.exp(b * theta_max)
+        scale = 110000 / r_max  # Zielradius = 110.000 Lj
+
+        x = [xi * scale for xi in x]
+        y = [yi * scale for yi in y]
+        z = [zi * scale for zi in z]
+
+        # Spiralstruktur drehen
+        x, y = rotate_points(x, y, angle, center_x=0)
+
+        # --- WICHTIG ---
+        # 1. Ausrichtung zur Erde
+        x, y, z = rotate_axis(x, y, z, rx, ry, rz, angle_to_view)
+
+        # 2. Inklination (~77°)
+        # "Up"-Vektor (Referenz)
+        up = (0, 0, 1)
+
+        # Kreuzprodukt: Sichtlinie x Up = Rotationsachse
+        px = ny * up[2] - nz * up[1]
+        py = nz * up[0] - nx * up[2]
+        pz = nx * up[1] - ny * up[0]
+
+        # Normieren
+        plen = math.sqrt(px**2 + py**2 + pz**2)
+        px /= plen
+        py /= plen
+        pz /= plen
+        x, y, z = rotate_axis(x, y, z, px, py, pz, math.radians(77))
+
+        # 3. Positionswinkel (~38°)
+        x, y, z = rotate_axis(x, y, z, nx, ny, nz, math.radians(38))
+
+        # Verschieben zur echten Position
+        x = [xi + dx for xi in x]
+        y = [yi + dy for yi in y]
+        z = [zi + dz for zi in z]
+
+        # Plotly Trace
+        data.append(
+            go.Scatter3d(
+                x=x, y=y, z=z,
+                mode='markers',
+                marker=dict(size=1, color='rgb(200, 220, 255)'),
+                showlegend=False,
+                name=f"Andromeda Arm {i+1}",
+                hoverinfo='skip'
+            )
+        )
 
 #Add distance labels to the circles around the sun
 def add_distance_labels(data, radii, earth_x=0.00001585501251):
@@ -652,49 +762,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         )
 
     # Add Andromeda Galaxy in right position with right rotation
-
-    # Andromeda Position
-    andromeda_pos = galactic_to_cartesian_andromeda(2516063.4850713015, 121.17432906422938, -21.57330879852804)
-
-    andromeda_center = andromeda_pos 
-
-    for i, (params, angle) in enumerate(zip(spiral_params, angles)):
-        x, y, z = spiral_arm(
-            a=2000,  # größer als Milchstraße
-            b=0.25,
-            theta_min=0,
-            theta_max=4 * math.pi,
-            num_points=4000,
-            center_shift=0,  # wichtig! erst lokal erzeugen
-            spread=3000
-        )
-
-        # Erst wie bei Milchstraße Arme drehen
-        x, y = rotate_points(x, y, angle, center_x=0)
-
-        # Dann 3D Rotation (physikalische Orientierung)
-        x, y, z = rotate_3d(
-            x, y, z,
-            angle_x=math.radians(77),   # Neigung
-            angle_z=math.radians(38)    # Drehung
-        )
-
-        # Dann verschieben an echte Position
-        x = [xi + andromeda_center[0] for xi in x]
-        y = [yi + andromeda_center[1] for yi in y]
-        z = [zi + andromeda_center[2] for zi in z]
-
-        data.append(
-            go.Scatter3d(
-                x=x, y=y, z=z,
-                mode='markers',
-                marker=dict(size=1, color='rgb(200, 220, 255)'),  # leicht bläulich
-                showlegend=False,
-                name=f"Andromeda Arm {i+1}",
-                hoverinfo='skip'
-            )
-        )
-
+    create_andromeda(data, spiral_arm, rotate_points)
 
     # Create planet orbits around the sun
     planet_orbits = add_planet_orbits(orbits)
