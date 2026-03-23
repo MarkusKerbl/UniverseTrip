@@ -17,7 +17,7 @@ import os
 import sys
 
 #*************************************************
-# Constants 
+# Constants
 #*************************************************
 
 # Distance from Sun to galactic core in LJ
