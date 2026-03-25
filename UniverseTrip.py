@@ -153,10 +153,16 @@ def create_andromeda(data, spiral_arm, rotate_points):
     # 5. Spiralparameter (größer als Milchstraße)
     # -----------------------------
     spiral_params = [
-        {"a": 2000, "b": 0.25, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 3000},
-        {"a": 2000, "b": 0.25, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 3000},
-        {"a": 2000, "b": 0.25, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 3000},
-        {"a": 2000, "b": 0.25, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 3000},
+        # a: start radius of spiral arm. 500- very compact, 5000 big empty core
+        # b: spiral form. 0.1- tight spiral (like a snake), 0.4 open and stetched
+        # theta_min: start engle. 0- standard, not0- shift of start engle
+        # theta_max: lenght of arm, 2pi- one round, 4pi - two rounds, 6pi- 3 rounds
+        # num_points: amount of stars. something between 2000-5000 is good for an arm
+        # spread: thickness. how far the stars are awai from the ideal spiral
+        {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000}, # changed to Andromeda values. original {"a": 2000, "b": 0.25, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 3000},
+        {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
+        {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
+        {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
     ]
 
     angles = [0, math.pi/2, math.pi, 3*math.pi/2]
@@ -176,12 +182,12 @@ def create_andromeda(data, spiral_arm, rotate_points):
         b = params["b"]
         theta_max = params["theta_max"]
 
-        r_max = a * math.exp(b * theta_max)
-        scale = 110000 / r_max  # Zielradius = 110.000 Lj
+        r_max = a * math.exp(b * theta_max) # calculation of actual max radius due to given spiral arm values
+        scale = 110000 / r_max  # Zielradius = 110.000 Lj, calculation of scale factor to get to the right radius
 
-        x = [xi * scale for xi in x]
-        y = [yi * scale for yi in y]
-        z = [zi * scale for zi in z]
+        x = [xi * scale for xi in x] # scaling of spiral arms
+        y = [yi * scale for yi in y] # scaling of spiral arms
+        z = [zi * scale for zi in z] # scaling of spiral arms
 
         # Spiralstruktur drehen
         x, y = rotate_points(x, y, angle, center_x=0)
@@ -214,6 +220,9 @@ def create_andromeda(data, spiral_arm, rotate_points):
         y = [yi + dy for yi in y]
         z = [zi + dz for zi in z]
 
+        max_r = max(math.sqrt(xi**2 + yi**2) for xi, yi in zip(x, y)) # check how big is the galaxy
+        print("Max Radius:", max_r)
+        
         # Plotly Trace
         data.append(
             go.Scatter3d(
