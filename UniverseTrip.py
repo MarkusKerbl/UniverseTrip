@@ -731,31 +731,6 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
                 hoverinfo='skip'
             )
         )
-    
-    # Parameter for the spiral arms
-    spiral_params = [
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-    ]
-    # Rotation angles for the spiral arms (in radians)
-    angles = [0, math.pi / 2, math.pi, 3 * math.pi / 2]
-    # Create data for the spiral arms
-    center_shift = 27000
-    for i, (params, angle) in enumerate(zip(spiral_params, angles)):
-        x, y, z = spiral_arm(**params, center_shift=center_shift)
-        x, y = rotate_points(x, y, angle, center_x=center_shift)  # Punkte um das galaktische Zentrum rotieren
-        data.append(
-            go.Scatter3d(
-                x=x, y=y, z=z,
-                mode='markers',
-                marker=dict(size=1, color='rgb(255, 248, 231)'), #Sternfarbe entsprechend kosmischer Latte #FFF8E7
-                showlegend=False,
-                name=f"Spiralarm {i+1}",
-                hoverinfo='skip'
-            )
-        )
 
     # Add Andromeda Galaxy in right position with right rotation
     if(show_andromeda):
@@ -813,7 +788,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         inclination_deg=90,
         pos_angle_deg=0,
         align_to_view=True,
-        color='rgb(200,220,255)',
+        color='rgb(255, 248, 231)',
         name="Milkyway"
     )
 
