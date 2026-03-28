@@ -275,7 +275,12 @@ def create_spiral_galaxy(
     bulge_size=0.1,        # Anteil vom Radius
     bulge_points=500,
     halo_radius_factor=1,
-    halo_points=100
+    halo_points=100,
+    bar_length=0.15,       # Anteil vom Galaxieradius
+    bar_width=0.02,        # Dicke
+    bar_height=0.005,      # vertikale Dicke
+    bar_points=2000,
+    bar_angle_deg=20      # Rotation innerhalb der Galaxie
 ):
     import math
 
@@ -407,108 +412,165 @@ def create_spiral_galaxy(
             )
         )
 
-        # -----------------------------
-        # BULGE (Zentrum)
-        # -----------------------------
-        if target_radius is not None:
-            import random
+    # -----------------------------
+    # BULGE (Zentrum)
+    # -----------------------------
+    if target_radius is not None:
+        import random
 
-            bulge_radius = target_radius * bulge_size
+        bulge_radius = target_radius * bulge_size
 
-            xb, yb, zb = [], [], []
+        xb, yb, zb = [], [], []
 
-            for _ in range(bulge_points):
-                # Kugelverteilung (gaussian für realistischeren Kern)
-                x_local = random.gauss(0, bulge_radius / 2)
-                y_local = random.gauss(0, bulge_radius / 2)
-                z_local = random.gauss(0, bulge_radius / 3)
+        for _ in range(bulge_points):
+            # Kugelverteilung (gaussian für realistischeren Kern)
+            x_local = random.gauss(0, bulge_radius / 2)
+            y_local = random.gauss(0, bulge_radius / 2)
+            z_local = random.gauss(0, bulge_radius / 3)
 
-                xb.append(x_local)
-                yb.append(y_local)
-                zb.append(z_local)
+            xb.append(x_local)
+            yb.append(y_local)
+            zb.append(z_local)
 
-            # gleiche Rotation wie Galaxie anwenden!
-            if align_to_view:
-                xb, yb, zb = rotate_axis(xb, yb, zb, rx, ry, rz, angle_to_view)
-                xb, yb, zb = rotate_axis(xb, yb, zb, px, py, pz, math.radians(inclination_deg))
-                xb, yb, zb = rotate_axis(xb, yb, zb, nx, ny, nz, math.radians(pos_angle_deg))
-            else:
-                xb, yb, zb = rotate_axis(xb, yb, zb, 1, 0, 0, math.radians(inclination_deg))
-                xb, yb, zb = rotate_axis(xb, yb, zb, 0, 0, 1, math.radians(pos_angle_deg))
+        # gleiche Rotation wie Galaxie anwenden!
+        if align_to_view:
+            xb, yb, zb = rotate_axis(xb, yb, zb, rx, ry, rz, angle_to_view)
+            xb, yb, zb = rotate_axis(xb, yb, zb, px, py, pz, math.radians(inclination_deg))
+            xb, yb, zb = rotate_axis(xb, yb, zb, nx, ny, nz, math.radians(pos_angle_deg))
+        else:
+            xb, yb, zb = rotate_axis(xb, yb, zb, 1, 0, 0, math.radians(inclination_deg))
+            xb, yb, zb = rotate_axis(xb, yb, zb, 0, 0, 1, math.radians(pos_angle_deg))
 
-            # verschieben
-            xb = [xi + dx for xi in xb]
-            yb = [yi + dy for yi in yb]
-            zb = [zi + dz for zi in zb]
+        # verschieben
+        xb = [xi + dx for xi in xb]
+        yb = [yi + dy for yi in yb]
+        zb = [zi + dz for zi in zb]
 
-            data.append(
-                go.Scatter3d(
-                    x=xb, y=yb, z=zb,
-                    mode='markers',
-                    marker=dict(size=1, color=color),
-                    showlegend=False,
-                    name=f"{name} Bulge",
-                    hoverinfo='skip'
-                )
+        data.append(
+            go.Scatter3d(
+                x=xb, y=yb, z=zb,
+                mode='markers',
+                marker=dict(size=1, color=color),
+                showlegend=False,
+                name=f"{name} Bulge",
+                hoverinfo='skip'
             )
+        )
+
+    # -----------------------------
+    # HALO (realistisch abfallend)
+    # -----------------------------
+    if target_radius is not None:
+        import random
+
+        halo_radius = target_radius * halo_radius_factor
+
+        xh, yh, zh = [], [], []
+
+        for _ in range(halo_points):
+
+            # ⭐ Radiale Verteilung mit Abnahme (Power-Law)
+            u = random.random()
+            #r = halo_radius * (u ** (1/3))  # mehr Punkte innen
+
+            # 👉 stärkerer Abfall (noch realistischer):
+            r = halo_radius * (u ** (1))
+
+            # Kugelkoordinaten
+            theta = random.uniform(0, 2 * math.pi)
+            phi = math.acos(random.uniform(-1, 1))
+
+            x_local = r * math.sin(phi) * math.cos(theta)
+            y_local = r * math.sin(phi) * math.sin(theta)
+
+            # ⭐ Halo ist leicht abgeflacht (nicht perfekte Kugel!)
+            z_local = r * math.cos(phi) * 0.1 #0.6
+
+            xh.append(x_local)
+            yh.append(y_local)
+            zh.append(z_local)
+
+        # gleiche Rotation!
+        if align_to_view:
+            xh, yh, zh = rotate_axis(xh, yh, zh, rx, ry, rz, angle_to_view)
+            xh, yh, zh = rotate_axis(xh, yh, zh, px, py, pz, math.radians(inclination_deg))
+            xh, yh, zh = rotate_axis(xh, yh, zh, nx, ny, nz, math.radians(pos_angle_deg))
+        else:
+            xh, yh, zh = rotate_axis(xh, yh, zh, 1, 0, 0, math.radians(inclination_deg))
+            xh, yh, zh = rotate_axis(xh, yh, zh, 0, 0, 1, math.radians(pos_angle_deg))
+
+        # verschieben
+        xh = [xi + dx for xi in xh]
+        yh = [yi + dy for yi in yh]
+        zh = [zi + dz for zi in zh]
+
+        data.append(
+            go.Scatter3d(
+                x=xh, y=yh, z=zh,
+                mode='markers',
+                marker=dict(size=1, color=color),
+                showlegend=False,
+                name=f"{name} Halo",
+                hoverinfo='skip'
+            )
+        )    
+
+    # -----------------------------
+    # BAR (Balkengalaxie)
+    # -----------------------------
+    if target_radius is not None and bar_points > 0:
+        import random
+
+        bar_len = target_radius * bar_length
+        bar_w = target_radius * bar_width
+        bar_h = target_radius * bar_height
+
+        xb, yb, zb = [], [], []
+
+        for _ in range(bar_points):
+            # entlang der Hauptachse (X-Richtung)
+            x_local = random.uniform(-bar_len, bar_len)
+
+            # Gauß-Verteilung für Dicke
+            y_local = random.gauss(0, bar_w)
+            z_local = random.gauss(0, bar_h)
+
+            xb.append(x_local)
+            yb.append(y_local)
+            zb.append(z_local)
 
         # -----------------------------
-        # HALO (realistisch abfallend)
+        # Rotation innerhalb der Galaxie (Bar-Winkel)
         # -----------------------------
-        if target_radius is not None:
-            import random
+        angle = math.radians(bar_angle_deg)
+        xb, yb = rotate_points(xb, yb, angle, center_x=0)
 
-            halo_radius = target_radius * halo_radius_factor
+        # -----------------------------
+        # gleiche 3D Rotation wie Rest
+        # -----------------------------
+        if align_to_view:
+            xb, yb, zb = rotate_axis(xb, yb, zb, rx, ry, rz, angle_to_view)
+            xb, yb, zb = rotate_axis(xb, yb, zb, px, py, pz, math.radians(inclination_deg))
+            xb, yb, zb = rotate_axis(xb, yb, zb, nx, ny, nz, math.radians(pos_angle_deg))
+        else:
+            xb, yb, zb = rotate_axis(xb, yb, zb, 1, 0, 0, math.radians(inclination_deg))
+            xb, yb, zb = rotate_axis(xb, yb, zb, 0, 0, 1, math.radians(pos_angle_deg))
 
-            xh, yh, zh = [], [], []
+        # verschieben
+        xb = [xi + dx for xi in xb]
+        yb = [yi + dy for yi in yb]
+        zb = [zi + dz for zi in zb]
 
-            for _ in range(halo_points):
-
-                # ⭐ Radiale Verteilung mit Abnahme (Power-Law)
-                u = random.random()
-                #r = halo_radius * (u ** (1/3))  # mehr Punkte innen
-
-                # 👉 stärkerer Abfall (noch realistischer):
-                r = halo_radius * (u ** (1))
-
-                # Kugelkoordinaten
-                theta = random.uniform(0, 2 * math.pi)
-                phi = math.acos(random.uniform(-1, 1))
-
-                x_local = r * math.sin(phi) * math.cos(theta)
-                y_local = r * math.sin(phi) * math.sin(theta)
-
-                # ⭐ Halo ist leicht abgeflacht (nicht perfekte Kugel!)
-                z_local = r * math.cos(phi) * 0.1 #0.6
-
-                xh.append(x_local)
-                yh.append(y_local)
-                zh.append(z_local)
-
-            # gleiche Rotation!
-            if align_to_view:
-                xh, yh, zh = rotate_axis(xh, yh, zh, rx, ry, rz, angle_to_view)
-                xh, yh, zh = rotate_axis(xh, yh, zh, px, py, pz, math.radians(inclination_deg))
-                xh, yh, zh = rotate_axis(xh, yh, zh, nx, ny, nz, math.radians(pos_angle_deg))
-            else:
-                xh, yh, zh = rotate_axis(xh, yh, zh, 1, 0, 0, math.radians(inclination_deg))
-                xh, yh, zh = rotate_axis(xh, yh, zh, 0, 0, 1, math.radians(pos_angle_deg))
-
-            # verschieben
-            xh = [xi + dx for xi in xh]
-            yh = [yi + dy for yi in yh]
-            zh = [zi + dz for zi in zh]
-
-            data.append(
-                go.Scatter3d(
-                    x=xh, y=yh, z=zh,
-                    mode='markers',
-                    marker=dict(size=1, color=color),
-                    showlegend=False,
-                    name=f"{name} Halo",
-                    hoverinfo='skip'
-                )
-            )    
+        data.append(
+            go.Scatter3d(
+                x=xb, y=yb, z=zb,
+                mode='markers',
+                marker=dict(size=1, color='rgb(255,0,200)'),
+                showlegend=False,
+                name=f"{name} Bar",
+                hoverinfo='skip'
+            )
+        )
 
 
 
@@ -874,7 +936,12 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
             bulge_size=0.1,        # Anteil vom Radius
             bulge_points=500,
             halo_radius_factor=1,
-            halo_points=100
+            halo_points=100,
+            bar_length=0,       # Anteil vom Galaxieradius
+            bar_width=0,        # Dicke
+            bar_height=0,      # vertikale Dicke
+            bar_points=0,
+            bar_angle_deg=0      # Rotation innerhalb der Galaxie
         )
 
     # Add Milkyway
@@ -908,7 +975,12 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         bulge_size=0.1,        # Anteil vom Radius
         bulge_points=500,
         halo_radius_factor=1,
-        halo_points=100
+        halo_points=100,
+        bar_length=0.15,       # Anteil vom Galaxieradius
+        bar_width=0.02,        # Dicke
+        bar_height=0.005,      # vertikale Dicke
+        bar_points=2000,
+        bar_angle_deg=20      # Rotation innerhalb der Galaxie
     )
 
 
