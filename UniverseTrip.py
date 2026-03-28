@@ -282,7 +282,7 @@ def create_spiral_galaxy(
     dx, dy, dz = galactic_to_cartesian(*position)
 
     # -----------------------------
-    # Sichtlinie (optional)
+    # Sichtlinie
     # -----------------------------
     if align_to_view:
         length = math.sqrt(dx**2 + dy**2 + dz**2)
@@ -352,7 +352,7 @@ def create_spiral_galaxy(
         x, y, z = spiral_arm(**params, center_shift=0)
 
         # -----------------------------
-        # Skalierung (optional)
+        # Skalierung
         # -----------------------------
         if target_radius is not None:
             a = params["a"]
@@ -408,7 +408,7 @@ def create_spiral_galaxy(
         )
 
         # -----------------------------
-        # ⭐ BULGE (Zentrum)
+        # BULGE (Zentrum)
         # -----------------------------
         if target_radius is not None:
             import random
@@ -453,7 +453,7 @@ def create_spiral_galaxy(
             )
 
         # -----------------------------
-        # 🌌 HALO (realistisch abfallend)
+        # HALO (realistisch abfallend)
         # -----------------------------
         if target_radius is not None:
             import random
@@ -466,10 +466,10 @@ def create_spiral_galaxy(
 
                 # ⭐ Radiale Verteilung mit Abnahme (Power-Law)
                 u = random.random()
-                r = halo_radius * (u ** (1/3))  # mehr Punkte innen
+                #r = halo_radius * (u ** (1/3))  # mehr Punkte innen
 
                 # 👉 stärkerer Abfall (noch realistischer):
-                r = halo_radius * (u ** (1/4))
+                r = halo_radius * (u ** (1))
 
                 # Kugelkoordinaten
                 theta = random.uniform(0, 2 * math.pi)
@@ -479,7 +479,7 @@ def create_spiral_galaxy(
                 y_local = r * math.sin(phi) * math.sin(theta)
 
                 # ⭐ Halo ist leicht abgeflacht (nicht perfekte Kugel!)
-                z_local = r * math.cos(phi) * 0.6
+                z_local = r * math.cos(phi) * 0.1 #0.6
 
                 xh.append(x_local)
                 yh.append(y_local)
@@ -869,8 +869,12 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
             inclination_deg=77,
             pos_angle_deg=38,
             align_to_view=True,
-            color='rgb(200,220,255)',
-            name="Andromeda"
+            color='rgb(255, 248, 231)',
+            name="Andromeda",
+            bulge_size=0.1,        # Anteil vom Radius
+            bulge_points=500,
+            halo_radius_factor=1,
+            halo_points=100
         )
 
     # Add Milkyway
@@ -900,7 +904,11 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         pos_angle_deg=0,
         align_to_view=True,
         color='rgb(255, 248, 231)',
-        name="Milkyway"
+        name="Milkyway",
+        bulge_size=0.1,        # Anteil vom Radius
+        bulge_points=500,
+        halo_radius_factor=1,
+        halo_points=100
     )
 
 
