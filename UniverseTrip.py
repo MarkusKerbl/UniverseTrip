@@ -349,6 +349,7 @@ def create_spiral_galaxy(
 
         return x_new, y_new, z_new
 
+    """
     # -----------------------------
     # Arme erzeugen
     # -----------------------------
@@ -411,7 +412,114 @@ def create_spiral_galaxy(
                 hoverinfo='skip'
             )
         )
+    """
+    # -----------------------------
+    # Arme erzeugen
+    # -----------------------------
+    for i, (params, angle) in enumerate(zip(spiral_params, arm_angles)):
+        # -----------------------------
+        # ⭐ Startpunkt an Balken koppeln
+        # -----------------------------
+        a = params["a"]
+        b = params["b"]
 
+        # ⭐ Spiral mit verschobenem Start erzeugen
+        x, y, z = spiral_arm(
+            a=a,
+            b=b,
+            theta_min=params["theta_min"],
+            theta_max=params["theta_max"],
+            num_points=params["num_points"],
+            spread=params["spread"],
+            center_shift=0
+        )
+
+        if target_radius is not None:
+            bar_len = target_radius * bar_length
+
+            # aktuellen Radius berechnen
+            r_current = [math.sqrt(xi**2 + yi**2) for xi, yi in zip(x, y)]
+
+            # Verschiebung berechnen
+            r_min = min(r_current)
+            shift = bar_len - r_min
+
+            # radial nach außen verschieben
+            new_x, new_y = [], []
+
+            for xi, yi, ri in zip(x, y, r_current):
+                if ri > 0:
+                    factor = (ri + shift) / ri
+                    new_x.append(xi * factor)
+                    new_y.append(yi * factor)
+                else:
+                    new_x.append(xi)
+                    new_y.append(yi)
+
+            x, y = new_x, new_y
+
+
+            # Sicherheitscheck (verhindert log-Fehler)
+            if bar_len > a:
+                theta_offset = math.log(bar_len / a) / b
+            else:
+                theta_offset = 0
+        else:
+            theta_offset = 0
+
+
+        # -----------------------------
+        # Skalierung
+        # -----------------------------
+        if target_radius is not None:
+            theta_max = params["theta_max"]
+            r_max = a * math.exp(b * theta_max)
+            scale = target_radius / r_max
+
+            x = [xi * scale for xi in x]
+            y = [yi * scale for yi in y]
+            z = [zi * scale for zi in z]
+
+        # 2D Rotation der Arme
+        x, y = rotate_points(x, y, angle, center_x=0)
+
+        # -----------------------------
+        # 3D Orientierung
+        # -----------------------------
+        if align_to_view:
+            # zur Erde ausrichten
+            x, y, z = rotate_axis(x, y, z, rx, ry, rz, angle_to_view)
+
+            # Inklination
+            x, y, z = rotate_axis(x, y, z, px, py, pz, math.radians(inclination_deg))
+
+            # Positionswinkel
+            x, y, z = rotate_axis(x, y, z, nx, ny, nz, math.radians(pos_angle_deg))
+        else:
+            # einfache Rotation im Raum
+            x, y, z = rotate_axis(x, y, z, 1, 0, 0, math.radians(inclination_deg))
+            x, y, z = rotate_axis(x, y, z, 0, 0, 1, math.radians(pos_angle_deg))
+
+        # -----------------------------
+        # Verschieben
+        # -----------------------------
+        x = [xi + dx for xi in x]
+        y = [yi + dy for yi in y]
+        z = [zi + dz for zi in z]
+
+        # -----------------------------
+        # Plot
+        # -----------------------------
+        data.append(
+            go.Scatter3d(
+                x=x, y=y, z=z,
+                mode='markers',
+                marker=dict(size=1, color=color),
+                showlegend=False,
+                name=f"{name} Arm {i+1}",
+                hoverinfo='skip'
+            )
+        )
     # -----------------------------
     # BULGE (Zentrum)
     # -----------------------------
@@ -529,11 +637,25 @@ def create_spiral_galaxy(
 
         for _ in range(bar_points):
             # entlang der Hauptachse (X-Richtung)
-            x_local = random.uniform(-bar_len, bar_len)
+            #x_local = random.uniform(-bar_len, bar_len)
+            x_local = random.gauss(0, bar_len / 2)
+
+            # ⭐ Normierte Position (0 = Mitte, 1 = Ende)
+            t = abs(x_local) / bar_len
+
+            # ⭐ Taper-Funktion (Form des Balkens)
+            taper = (1 - t**2)   # weich & realistisch
+
+            # Sicherheitsminimum (verhindert komplett dünne Enden)
+            taper = max(taper, 0.5)
+
+            # ⭐ Breite abhängig von Position
+            y_local = random.gauss(0, bar_w * taper)
+            z_local = random.gauss(0, bar_h * taper)
 
             # Gauß-Verteilung für Dicke
-            y_local = random.gauss(0, bar_w)
-            z_local = random.gauss(0, bar_h)
+            #y_local = random.gauss(0, bar_w)
+            #z_local = random.gauss(0, bar_h)
 
             xb.append(x_local)
             yb.append(y_local)
@@ -565,7 +687,7 @@ def create_spiral_galaxy(
             go.Scatter3d(
                 x=xb, y=yb, z=zb,
                 mode='markers',
-                marker=dict(size=1, color='rgb(255,0,200)'),
+                marker=dict(size=1, color=color),
                 showlegend=False,
                 name=f"{name} Bar",
                 hoverinfo='skip'
@@ -947,7 +1069,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
     # Add Milkyway
     milkyway_pos = (0, 0, SONNEN_ABSTAND)
     spiral_params_milkyway = [
-         # a: start radius of spiral arm. 500- very compact, 5000 big empty core
+        # a: start radius of spiral arm. 500- very compact, 5000 big empty core
         # b: spiral form. 0.1- tight spiral (like a snake), 0.4 open and stetched
         # theta_min: start engle. 0- standard, not0- shift of start engle
         # theta_max: lenght of arm, 2pi- one round, 4pi - two rounds, 6pi- 3 rounds
@@ -972,15 +1094,15 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         align_to_view=True,
         color='rgb(255, 248, 231)',
         name="Milkyway",
-        bulge_size=0.1,        # Anteil vom Radius
+        bulge_size=0.2,        # Anteil vom Radius
         bulge_points=500,
         halo_radius_factor=1,
-        halo_points=100,
-        bar_length=0.15,       # Anteil vom Galaxieradius
-        bar_width=0.02,        # Dicke
+        halo_points=500,
+        bar_length=0.2,#test war 0.15       # Anteil vom Galaxieradius
+        bar_width=0.05,        # Dicke
         bar_height=0.005,      # vertikale Dicke
         bar_points=2000,
-        bar_angle_deg=20      # Rotation innerhalb der Galaxie
+        bar_angle_deg=500      # Rotation innerhalb der Galaxie
     )
 
 
