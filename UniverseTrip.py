@@ -423,43 +423,9 @@ def create_spiral_galaxy(
         a = params["a"]
         b = params["b"]
 
-        # ⭐ Spiral mit verschobenem Start erzeugen
-        x, y, z = spiral_arm(
-            a=a,
-            b=b,
-            theta_min=params["theta_min"],
-            theta_max=params["theta_max"],
-            num_points=params["num_points"],
-            spread=params["spread"],
-            center_shift=0
-        )
-
         if target_radius is not None:
             bar_len = target_radius * bar_length
 
-            # aktuellen Radius berechnen
-            r_current = [math.sqrt(xi**2 + yi**2) for xi, yi in zip(x, y)]
-
-            # Verschiebung berechnen
-            r_min = min(r_current)
-            shift = bar_len - r_min
-
-            # radial nach außen verschieben
-            new_x, new_y = [], []
-
-            for xi, yi, ri in zip(x, y, r_current):
-                if ri > 0:
-                    factor = (ri + shift) / ri
-                    new_x.append(xi * factor)
-                    new_y.append(yi * factor)
-                else:
-                    new_x.append(xi)
-                    new_y.append(yi)
-
-            x, y = new_x, new_y
-
-
-            # Sicherheitscheck (verhindert log-Fehler)
             if bar_len > a:
                 theta_offset = math.log(bar_len / a) / b
             else:
@@ -467,6 +433,17 @@ def create_spiral_galaxy(
         else:
             theta_offset = 0
 
+
+        # ⭐ Spiral mit verschobenem Start erzeugen
+        x, y, z = spiral_arm(
+            a=a,
+            b=b,
+            theta_min=params["theta_min"] + theta_offset,
+            theta_max=params["theta_max"],
+            num_points=params["num_points"],
+            spread=params["spread"],
+            center_shift=0
+        )
 
         # -----------------------------
         # Skalierung
@@ -1069,19 +1046,46 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
     # Add Milkyway
     milkyway_pos = (0, 0, SONNEN_ABSTAND)
     spiral_params_milkyway = [
-        # a: start radius of spiral arm. 500- very compact, 5000 big empty core
+        # a: start radius of spiral arm. 10 starts far away, 1200 kind in the middle
         # b: spiral form. 0.1- tight spiral (like a snake), 0.4 open and stetched
         # theta_min: start engle. 0- standard, not0- shift of start engle
         # theta_max: lenght of arm, 2pi- one round, 4pi - two rounds, 6pi- 3 rounds
         # num_points: amount of stars. something between 2000-5000 is good for an arm
         # spread: thickness. how far the stars are awai from the ideal spiral
         {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
+        {"a": 1200, "b": 0.34, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 4000},
         {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
+        {"a": 1200, "b": 0.34, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 4000},
     ]
     angles_milkyway = [0, math.pi/2, math.pi, 3*math.pi/2]
+
     create_spiral_galaxy(
+        data,
+        spiral_arm,
+        rotate_points,
+        position=milkyway_pos,
+        spiral_params=spiral_params_milkyway,
+        arm_angles=angles_milkyway,
+        target_radius=50000,
+        inclination_deg=90,
+        pos_angle_deg=0,
+        align_to_view=True,
+        color='rgb(255, 248, 231)',
+        name="Milkyway",
+        bulge_size=0.2,        # Anteil vom Radius
+        bulge_points=500,
+        halo_radius_factor=1,
+        halo_points=500,
+        bar_length=0.3,#test war 0.2       # Anteil vom Galaxieradius
+        bar_width=0.05,        # Dicke
+        bar_height=0.005,      # vertikale Dicke
+        bar_points=2000,
+        bar_angle_deg=500      # Rotation innerhalb der Galaxie
+    )
+
+    '''
+        Original data:
+        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
         data,
         spiral_arm,
         rotate_points,
@@ -1103,8 +1107,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         bar_height=0.005,      # vertikale Dicke
         bar_points=2000,
         bar_angle_deg=500      # Rotation innerhalb der Galaxie
-    )
-
+    '''
 
     # Create planet orbits around the sun
     planet_orbits = add_planet_orbits(orbits)
