@@ -711,7 +711,131 @@ def create_elliptical_galaxy(
         )
     )
 
+def create_cd_galaxy(
+    data,
+    position,                 # (l, b, distance)
+    core_radius=50000,
+    galaxy_radius=300000,
+    halo_radius=1000000,
+    icl_radius=3000000,
+    core_points=5000,
+    galaxy_points=15000,
+    halo_points=10000,
+    icl_points=15000,
+    flattening=0.7,
+    icl_flattening=0.9,
+    color_core='rgb(255,245,220)',
+    color_galaxy='rgb(255,240,200)',
+    color_halo='rgb(200,220,255)',
+    color_icl='rgb(180,200,255)',
+    name="cD Galaxy"
+):
+    import random
+    import math
 
+    dx, dy, dz = galactic_to_cartesian(*position)
+
+    def sample_ellipsoid(radius, n_points, flatten):
+        xg, yg, zg = [], [], []
+
+        for _ in range(n_points):
+            # ⭐ Dichteprofil: stark zentral konzentriert
+            u = random.random()
+            r = radius * (u ** 0.25)
+
+            theta = random.uniform(0, 2 * math.pi)
+            phi = math.acos(random.uniform(-1, 1))
+
+            x = r * math.sin(phi) * math.cos(theta)
+            y = r * math.sin(phi) * math.sin(theta)
+            z = r * math.cos(phi) * flatten
+
+            xg.append(x)
+            yg.append(y)
+            zg.append(z)
+
+        return xg, yg, zg
+
+    # -----------------------------
+    # 1. CORE (extrem dicht)
+    # -----------------------------
+    xc, yc, zc = sample_ellipsoid(core_radius, core_points, flattening * 0.8)
+
+    data.append(go.Scatter3d(
+        x=[x + dx for x in xc],
+        y=[y + dy for y in yc],
+        z=[z + dz for z in zc],
+        mode='markers',
+        marker=dict(size=1.2, color=color_core),
+        showlegend=False,
+        name=f"{name} Core",
+        hoverinfo='skip'
+    ))
+
+    # -----------------------------
+    # 2. HAUPTGALAXIE
+    # -----------------------------
+    xg, yg, zg = sample_ellipsoid(galaxy_radius, galaxy_points, flattening)
+
+    data.append(go.Scatter3d(
+        x=[x + dx for x in xg],
+        y=[y + dy for y in yg],
+        z=[z + dz for z in zg],
+        mode='markers',
+        marker=dict(size=1, color=color_galaxy),
+        showlegend=False,
+        name=f"{name} Galaxy",
+        hoverinfo='skip'
+    ))
+
+    # -----------------------------
+    # 3. HALO (sehr diffus)
+    # -----------------------------
+    xh, yh, zh = sample_ellipsoid(halo_radius, halo_points, flattening * 1.2)
+
+    data.append(go.Scatter3d(
+        x=[x + dx for x in xh],
+        y=[y + dy for y in yh],
+        z=[z + dz for z in zh],
+        mode='markers',
+        marker=dict(size=1, color=color_halo),
+        showlegend=False,
+        name=f"{name} Halo",
+        hoverinfo='skip'
+    ))
+
+    # -----------------------------
+    # 4. INTRACLUSTER LIGHT (ICL)
+    # -----------------------------
+    xi, yi, zi = [], [], []
+
+    for _ in range(icl_points):
+        u = random.random()
+
+        # ⭐ noch flacheres Dichteprofil
+        r = icl_radius * (u ** 0.8)
+
+        theta = random.uniform(0, 2 * math.pi)
+        phi = math.acos(random.uniform(-1, 1))
+
+        x = r * math.sin(phi) * math.cos(theta)
+        y = r * math.sin(phi) * math.sin(theta)
+        z = r * math.cos(phi) * icl_flattening
+
+        xi.append(x)
+        yi.append(y)
+        zi.append(z)
+
+    data.append(go.Scatter3d(
+        x=[x + dx for x in xi],
+        y=[y + dy for y in yi],
+        z=[z + dz for z in zi],
+        mode='markers',
+        marker=dict(size=1, color=color_icl),
+        showlegend=False,
+        name=f"{name} ICL",
+        hoverinfo='skip'
+    ))
 
 
 #*************************************************
@@ -1083,6 +1207,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
             bar_angle_deg=0      # Rotation innerhalb der Galaxie
         )
         
+        """
         # IC1101
         IC1101_pos = (6.47365650070465,50.54551432422441,1000000000.0)
         spiral_params = [
@@ -1121,7 +1246,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
             bar_points=0,
             bar_angle_deg=0      # Rotation innerhalb der Galaxie
         )
-
+        """
         """
         # IC1101 as elliptical galaxy
         create_elliptical_galaxy(
@@ -1133,6 +1258,21 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         name="IC 1101"
         )
         """
+        # IC1101 as cd galaxy
+        create_cd_galaxy(
+            data,
+            position=(6.47365650070465,50.54551432422441,1000000000.0),
+            core_radius=80000, #radius core
+            galaxy_radius=400000, #radius galaxy
+            halo_radius=1500000, # radius halo
+            icl_radius=4000000, # Inter cluster light radius
+            core_points=8000,   # stars in core
+            galaxy_points=20000, # stars in galaxy
+            halo_points=15000, #stars in halo
+            icl_points=0, # inter cluster light in icl
+            flattening=0.3, # flattening factor
+            name="IC 1101"
+        )
 
     # Add Milkyway
     milkyway_pos = (0, 0, SONNEN_ABSTAND)
