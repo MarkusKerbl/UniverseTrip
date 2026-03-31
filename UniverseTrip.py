@@ -671,6 +671,45 @@ def create_spiral_galaxy(
             )
         )
 
+def create_elliptical_galaxy(
+    data,
+    position,
+    radius,
+    num_points=10000,
+    flattening=0.6,
+    color='rgb(255,240,200)',
+    name="Elliptical Galaxy"
+):
+
+    dx, dy, dz = galactic_to_cartesian(*position)
+
+    xg, yg, zg = [], [], []
+
+    for _ in range(num_points):
+        # Radialverteilung (stark zum Zentrum konzentriert)
+        r = radius * (random.random() ** 0.3)
+
+        theta = random.uniform(0, 2 * math.pi)
+        phi = math.acos(random.uniform(-1, 1))
+
+        x = r * math.sin(phi) * math.cos(theta)
+        y = r * math.sin(phi) * math.sin(theta)
+        z = r * math.cos(phi) * flattening  # Abflachung
+
+        xg.append(x + dx)
+        yg.append(y + dy)
+        zg.append(z + dz)
+
+    data.append(
+        go.Scatter3d(
+            x=xg, y=yg, z=zg,
+            mode='markers',
+            marker=dict(size=1, color=color),
+            showlegend=False,
+            name=name,
+            hoverinfo='skip'
+        )
+    )
 
 
 
@@ -678,7 +717,7 @@ def create_spiral_galaxy(
 #*************************************************
 # Create the 3D visualization of the objects in the universe
 #*************************************************
-def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_andromeda, show_distances, show_legend):
+def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_simulated_galaxies, show_distances, show_legend):
 
     #*************************************************
     # Figure - Layout
@@ -1003,8 +1042,9 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
             )
         )
 
-    # Add Andromeda Galaxy
-    if(show_andromeda):
+    # Add Simulated Galaxy
+    if(show_simulated_galaxies):
+        # Andromeda M31
         andromeda_pos = (121.17432906422938, -21.57330879852804, 2516063.4850713015)
         spiral_params = [
             # a: start radius of spiral arm. 500- very compact, 5000 big empty core
@@ -1042,6 +1082,57 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
             bar_points=0,
             bar_angle_deg=0      # Rotation innerhalb der Galaxie
         )
+        
+        # IC1101
+        IC1101_pos = (6.47365650070465,50.54551432422441,1000000000.0)
+        spiral_params = [
+            # a: start radius of spiral arm. 500- very compact, 5000 big empty core
+            # b: spiral form. 0.1- tight spiral (like a snake), 0.4 open and stetched
+            # theta_min: start engle. 0- standard, not0- shift of start engle
+            # theta_max: lenght of arm, 2pi- one round, 4pi - two rounds, 6pi- 3 rounds
+            # num_points: amount of stars. something between 2000-5000 is good for an arm
+            # spread: thickness. how far the stars are awai from the ideal spiral
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 2 * math.pi, "num_points": 4000, "spread": 4000},
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 2 * math.pi, "num_points": 4000, "spread": 4000},
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 2 * math.pi, "num_points": 4000, "spread": 4000},
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 2 * math.pi, "num_points": 4000, "spread": 4000},
+        ]
+        angles = [0, math.pi/2, math.pi, 3*math.pi/2]
+        create_spiral_galaxy(
+            data,
+            spiral_arm,
+            rotate_points,
+            position=IC1101_pos,
+            spiral_params=spiral_params,
+            arm_angles=angles,
+            target_radius=1467703, #Durchmesser von 900kpc = 2,9Mio Lj = radius von 1.467.703
+            inclination_deg=30,
+            pos_angle_deg=45,
+            align_to_view=False,
+            color='rgb(255, 248, 231)',
+            name="IC1101",
+            bulge_size=0.1,        # Anteil vom Radius
+            bulge_points=500,
+            halo_radius_factor=1,
+            halo_points=100,
+            bar_length=0,       # Anteil vom Galaxieradius
+            bar_width=0,        # Dicke
+            bar_height=0,      # vertikale Dicke
+            bar_points=0,
+            bar_angle_deg=0      # Rotation innerhalb der Galaxie
+        )
+
+        """
+        # IC1101 as elliptical galaxy
+        create_elliptical_galaxy(
+        data,
+        position=(6.47365650070465,50.54551432422441,1000000000.0),
+        radius=1_467_703,   # ~2 Millionen Lichtjahre Radius (!)
+        num_points=20000,
+        flattening=0.7,
+        name="IC 1101"
+        )
+        """
 
     # Add Milkyway
     milkyway_pos = (0, 0, SONNEN_ABSTAND)
@@ -1053,9 +1144,9 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         # num_points: amount of stars. something between 2000-5000 is good for an arm
         # spread: thickness. how far the stars are awai from the ideal spiral
         {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        {"a": 1200, "b": 0.34, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 4000},
+        {"a": 1200, "b": 0.34, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 4000}, #b - let spiral arm begin at bar
         {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        {"a": 1200, "b": 0.34, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 4000},
+        {"a": 1200, "b": 0.34, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 4000}, #b - let spiral arm begin at bar
     ]
     angles_milkyway = [0, math.pi/2, math.pi, 3*math.pi/2]
 
@@ -1082,32 +1173,6 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         bar_points=2000,
         bar_angle_deg=500      # Rotation innerhalb der Galaxie
     )
-
-    '''
-        Original data:
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        data,
-        spiral_arm,
-        rotate_points,
-        position=milkyway_pos,
-        spiral_params=spiral_params_milkyway,
-        arm_angles=angles_milkyway,
-        target_radius=50000,
-        inclination_deg=90,
-        pos_angle_deg=0,
-        align_to_view=True,
-        color='rgb(255, 248, 231)',
-        name="Milkyway",
-        bulge_size=0.2,        # Anteil vom Radius
-        bulge_points=500,
-        halo_radius_factor=1,
-        halo_points=500,
-        bar_length=0.2,#test war 0.15       # Anteil vom Galaxieradius
-        bar_width=0.05,        # Dicke
-        bar_height=0.005,      # vertikale Dicke
-        bar_points=2000,
-        bar_angle_deg=500      # Rotation innerhalb der Galaxie
-    '''
 
     # Create planet orbits around the sun
     planet_orbits = add_planet_orbits(orbits)
@@ -1455,7 +1520,7 @@ def start_gui():
     earthaxis_var = tk.IntVar(value=0)
     orientationline_var = tk.IntVar(value=0)
     visibility_limits_var = tk.IntVar(value=1)
-    show_andromeda_var = tk.IntVar(value=1)
+    show_simulated_galaxies_var = tk.IntVar(value=1)
     distances_var = tk.IntVar(value=1)
     legend_var = tk.IntVar(value=0)  # Standard: Legende anzeigen
     file_path = tk.StringVar(value="objects_UniverseTrip.csv")
@@ -1476,7 +1541,7 @@ def start_gui():
             'show_earthaxis': bool(earthaxis_var.get()),
             'show_orientationline': bool(orientationline_var.get()),
             'show_visibility_limits': bool(visibility_limits_var.get()),
-            'show_andromeda': bool(show_andromeda_var.get()),
+            'show_simulated_galaxies': bool(show_simulated_galaxies_var.get()),
             'show_distances': bool(distances_var.get()),
             'show_legend': bool(legend_var.get())
         }
@@ -1489,7 +1554,7 @@ def start_gui():
             options["show_earthaxis"], 
             options["show_orientationline"], 
             options["show_visibility_limits"],
-            options["show_andromeda"], 
+            options["show_simulated_galaxies"], 
             options["show_distances"],
             options["show_legend"]
         )
@@ -1522,7 +1587,7 @@ def start_gui():
     ttk.Checkbutton(options_frame, text="Show Earth axis", variable=earthaxis_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show orientaton line Sun to Galactic center", variable=orientationline_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show visibility limits", variable=visibility_limits_var).pack(anchor="w")
-    ttk.Checkbutton(options_frame, text="Show Andromeda simulated as galaxy", variable=show_andromeda_var).pack(anchor="w")
+    ttk.Checkbutton(options_frame, text="Simulate additional galaxies", variable=show_simulated_galaxies_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show distance circles", variable=distances_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show legend", variable=legend_var).pack(anchor="w")
 
@@ -1537,7 +1602,7 @@ def start_gui():
 #*************************************************
 # Main program
 #*************************************************  
-def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_andromeda, show_distances, show_legend):
+def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_simulated_galaxies, show_distances, show_legend):
     # Pfad zur CSV-Datei
     #file_path = "objects_UniverseTrip.csv"  #Dateipfad zur Datendatei, not needed any more bercause this will be defined in GUI
 
@@ -1569,7 +1634,7 @@ def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis,
     ]
     
     # 3D-Darstellung
-    create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_andromeda, show_distances, show_legend)
+    create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_simulated_galaxies, show_distances, show_legend)
 
 if __name__ == "__main__":
     start_gui()
