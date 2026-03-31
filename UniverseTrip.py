@@ -710,7 +710,7 @@ def create_elliptical_galaxy(
             hoverinfo='skip'
         )
     )
-
+"""
 def create_cd_galaxy(
     data,
     position,                 # (l, b, distance)
@@ -836,6 +836,129 @@ def create_cd_galaxy(
         name=f"{name} ICL",
         hoverinfo='skip'
     ))
+"""
+
+def create_cd_galaxy(
+    data,
+    position,
+    total_points=40000,
+    target_diameter=2900000,
+    flattening=0.2,
+    icl_flattening=0.5,
+    name="cD Galaxy"
+):
+    import random
+    import math
+
+    dx, dy, dz = galactic_to_cartesian(*position)
+
+    # -----------------------------
+    # Basis-Skalierung berechnen
+    # -----------------------------
+    visible_radius = target_diameter / 2
+
+    galaxy_scale = visible_radius / 4
+    core_scale   = galaxy_scale * 0.15
+    halo_scale   = galaxy_scale * 4
+    icl_scale    = galaxy_scale * 12
+
+    x_all, y_all, z_all = [], [], []
+    colors = []
+
+    max_scale = icl_scale
+
+    count = 0
+    while count < total_points:
+
+        # -----------------------------
+        # ⭐ Kontinuierliche Radiusverteilung
+        # (KEINE Komponenten mehr!)
+        # -----------------------------
+        u = random.random()
+        r = -max_scale * 0.25 * math.log(1 - u)
+
+        if r > max_scale:
+            continue
+
+        # -----------------------------
+        # ⭐ ULTRA-WEICHE DICHTEFUNKTION
+        # Mischung aller Komponenten
+        # -----------------------------
+        density = (
+            1.5 * math.exp(-r / core_scale) +          # Kern
+            1.0 * math.exp(-r / galaxy_scale) +        # Galaxie
+            0.6 * math.exp(-r / halo_scale) +          # Halo
+            0.05 * math.exp(-r / icl_scale)            # ICL
+        )
+
+        # Normierung
+        density = min(density, 1.0)
+
+        # ⭐ Rejection Sampling → KEINE KANTE
+        if random.random() > density:
+            continue
+
+        # -----------------------------
+        # Geometrie
+        # -----------------------------
+        theta = random.uniform(0, 2 * math.pi)
+        phi = math.acos(random.uniform(-1, 1))
+
+        # ⭐ Flattening abhängig vom Radius (smooth!)
+        t = r / max_scale
+
+        flat = (
+            flattening * (1 - t) +
+            icl_flattening * t
+        )
+
+        x = r * math.sin(phi) * math.cos(theta)
+        y = r * math.sin(phi) * math.sin(theta)
+        z = r * math.cos(phi) * flat
+
+        # -----------------------------
+        # ⭐ zusätzliche Glättung (verhindert Ringe!)
+        # -----------------------------
+        jitter = r * 0.02
+
+        x += random.gauss(0, jitter)
+        y += random.gauss(0, jitter)
+        z += random.gauss(0, jitter)
+
+        # -----------------------------
+        # ⭐ Farbverlauf (smooth!)
+        # -----------------------------
+        if r < core_scale:
+            color = 'rgb(255,245,220)'
+        elif r < galaxy_scale:
+            color = 'rgb(255,235,200)'
+        elif r < halo_scale:
+            color = 'rgb(220,230,255)'
+        else:
+            color = 'rgb(180,200,255)'
+
+        x_all.append(x + dx)
+        y_all.append(y + dy)
+        z_all.append(z + dz)
+        colors.append(color)
+
+        count += 1
+
+    # -----------------------------
+    # Plot
+    # -----------------------------
+    data.append(
+        go.Scatter3d(
+            x=x_all,
+            y=y_all,
+            z=z_all,
+            mode='markers',
+            marker=dict(size=1, color=colors),
+            showlegend=False,
+            name=name,
+            hoverinfo='skip'
+        )
+    )
 
 
 #*************************************************
@@ -1258,21 +1381,19 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         name="IC 1101"
         )
         """
+
+        
         # IC1101 as cd galaxy
         create_cd_galaxy(
             data,
-            position=(6.47365650070465,50.54551432422441,1000000000.0),
-            core_radius=80000, #radius core
-            galaxy_radius=400000, #radius galaxy
-            halo_radius=1500000, # radius halo
-            icl_radius=4000000, # Inter cluster light radius
-            core_points=8000,   # stars in core
-            galaxy_points=20000, # stars in galaxy
-            halo_points=15000, #stars in halo
-            icl_points=0, # inter cluster light in icl
-            flattening=0.3, # flattening factor
+            position=(6.47365650070465,50.54551432422441,1000000.0),
+            target_diameter=2_900_000,
+            total_points=60000,
+            flattening=0.1,
+            icl_flattening=0.1,
             name="IC 1101"
         )
+        
 
     # Add Milkyway
     milkyway_pos = (0, 0, SONNEN_ABSTAND)
