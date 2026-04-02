@@ -845,6 +845,11 @@ def create_cd_galaxy(
     target_diameter=2900000,
     flattening=0.2,
     icl_flattening=0.5,
+
+    inclination_deg=0,      # ⭐ NEU
+    pos_angle_deg=0,        # ⭐ NEU
+    align_to_view=False,    # ⭐ optional
+
     name="cD Galaxy"
 ):
     import random
@@ -853,7 +858,62 @@ def create_cd_galaxy(
     dx, dy, dz = galactic_to_cartesian(*position)
 
     # -----------------------------
-    # Basis-Skalierung berechnen
+    # Rotation helper (gleich wie bei dir)
+    # -----------------------------
+    def rotate_axis(x, y, z, ux, uy, uz, angle):
+        cos_a = math.cos(angle)
+        sin_a = math.sin(angle)
+
+        x_new, y_new, z_new = [], [], []
+
+        for xi, yi, zi in zip(x, y, z):
+            dot = ux*xi + uy*yi + uz*zi
+
+            x_rot = (xi * cos_a +
+                     (uy*zi - uz*yi) * sin_a +
+                     ux * dot * (1 - cos_a))
+
+            y_rot = (yi * cos_a +
+                     (uz*xi - ux*zi) * sin_a +
+                     uy * dot * (1 - cos_a))
+
+            z_rot = (zi * cos_a +
+                     (ux*yi - uy*xi) * sin_a +
+                     uz * dot * (1 - cos_a))
+
+            x_new.append(x_rot)
+            y_new.append(y_rot)
+            z_new.append(z_rot)
+
+        return x_new, y_new, z_new
+
+    # -----------------------------
+    # Sichtlinien-Ausrichtung (optional)
+    # -----------------------------
+    if align_to_view:
+        length = math.sqrt(dx**2 + dy**2 + dz**2)
+        nx, ny, nz = dx/length, dy/length, dz/length
+
+        rx, ry, rz = -ny, nx, 0
+        axis_len = math.sqrt(rx**2 + ry**2)
+        rx /= axis_len
+        ry /= axis_len
+
+        angle_to_view = math.acos(nz)
+
+        up = (0, 0, 1) if abs(nz) < 0.9 else (0, 1, 0)
+
+        px = ny * up[2] - nz * up[1]
+        py = nz * up[0] - nx * up[2]
+        pz = nx * up[1] - ny * up[0]
+
+        plen = math.sqrt(px**2 + py**2 + pz**2)
+        px /= plen
+        py /= plen
+        pz /= plen
+
+    # -----------------------------
+    # Skalierung
     # -----------------------------
     visible_radius = target_diameter / 2
 
@@ -862,85 +922,74 @@ def create_cd_galaxy(
     halo_scale   = galaxy_scale * 4
     icl_scale    = galaxy_scale * 12
 
+    max_scale = icl_scale
+
     x_all, y_all, z_all = [], [], []
     colors = []
-
-    max_scale = icl_scale
 
     count = 0
     while count < total_points:
 
-        # -----------------------------
-        # ⭐ Kontinuierliche Radiusverteilung
-        # (KEINE Komponenten mehr!)
-        # -----------------------------
         u = random.random()
         r = -max_scale * 0.25 * math.log(1 - u)
 
         if r > max_scale:
             continue
 
-        # -----------------------------
-        # ⭐ ULTRA-WEICHE DICHTEFUNKTION
-        # Mischung aller Komponenten
-        # -----------------------------
         density = (
-            1.5 * math.exp(-r / core_scale) +          # Kern
-            1.0 * math.exp(-r / galaxy_scale) +        # Galaxie
-            0.6 * math.exp(-r / halo_scale) +          # Halo
-            0.05 * math.exp(-r / icl_scale)            # ICL
+            1.5 * math.exp(-r / core_scale) +
+            1.0 * math.exp(-r / galaxy_scale) +
+            0.6 * math.exp(-r / halo_scale) +
+            0.05 * math.exp(-r / icl_scale)
         )
 
-        # Normierung
-        density = min(density, 1.0)
-
-        # ⭐ Rejection Sampling → KEINE KANTE
-        if random.random() > density:
+        if random.random() > min(density, 1):
             continue
 
-        # -----------------------------
-        # Geometrie
-        # -----------------------------
         theta = random.uniform(0, 2 * math.pi)
         phi = math.acos(random.uniform(-1, 1))
 
-        # ⭐ Flattening abhängig vom Radius (smooth!)
         t = r / max_scale
-
-        flat = (
-            flattening * (1 - t) +
-            icl_flattening * t
-        )
+        flat = flattening * (1 - t) + icl_flattening * t
 
         x = r * math.sin(phi) * math.cos(theta)
         y = r * math.sin(phi) * math.sin(theta)
         z = r * math.cos(phi) * flat
 
-        # -----------------------------
-        # ⭐ zusätzliche Glättung (verhindert Ringe!)
-        # -----------------------------
         jitter = r * 0.02
-
         x += random.gauss(0, jitter)
         y += random.gauss(0, jitter)
         z += random.gauss(0, jitter)
 
         # -----------------------------
-        # ⭐ Farbverlauf (smooth!)
+        # ⭐ ROTATION HIER ANWENDEN
         # -----------------------------
-        if r < core_scale:
-            color = 'rgb(255,245,220)'
-        elif r < galaxy_scale:
-            color = 'rgb(255,235,200)'
-        elif r < halo_scale:
-            color = 'rgb(220,230,255)'
+        if align_to_view:
+            x, y, z = rotate_axis([x], [y], [z], rx, ry, rz, angle_to_view)
+            x, y, z = rotate_axis(x, y, z, px, py, pz, math.radians(inclination_deg))
+            x, y, z = rotate_axis(x, y, z, nx, ny, nz, math.radians(pos_angle_deg))
+            x, y, z = x[0], y[0], z[0]
         else:
-            color = 'rgb(180,200,255)'
+            x, y, z = rotate_axis([x], [y], [z], 1, 0, 0, math.radians(inclination_deg))
+            x, y, z = rotate_axis(x, y, z, 0, 0, 1, math.radians(pos_angle_deg))
+            x, y, z = x[0], y[0], z[0]
 
+        # -----------------------------
+        # Verschieben
+        # -----------------------------
         x_all.append(x + dx)
         y_all.append(y + dy)
         z_all.append(z + dz)
-        colors.append(color)
+
+        # Farbe
+        if r < core_scale:
+            colors.append('rgb(255,245,220)')
+        elif r < galaxy_scale:
+            colors.append('rgb(255,235,200)')
+        elif r < halo_scale:
+            colors.append('rgb(220,230,255)')
+        else:
+            colors.append('rgb(180,200,255)')
 
         count += 1
 
@@ -1386,11 +1435,14 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         # IC1101 as cd galaxy
         create_cd_galaxy(
             data,
-            position=(6.47365650070465,50.54551432422441,1000000.0),
-            target_diameter=2_900_000,
+            position=(6.47365650070465,50.54551432422441,1000000000.0),
             total_points=60000,
+            target_diameter=2_900_000,
             flattening=0.1,
             icl_flattening=0.1,
+            inclination_deg=100,
+            pos_angle_deg=60,
+            align_to_view=True,
             name="IC 1101"
         )
         
