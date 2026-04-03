@@ -77,168 +77,6 @@ def rotate_points(x, y, angle, center_x=27000):
     y_final = y_rotated
     return x_final, y_final
 
-# Functions for Andromeda
-def create_andromeda(data, spiral_arm, rotate_points):
-    import math
-    import random
-
-    # -----------------------------
-    # 1. Position (in Lichtjahren)
-    # -----------------------------
-    def galactic_to_cartesian(distance, l_deg, b_deg):
-        l = math.radians(l_deg)
-        b = math.radians(b_deg)
-
-        x = distance * math.cos(b) * math.cos(l)
-        y = distance * math.cos(b) * math.sin(l)
-        z = distance * math.sin(b)
-
-        return x, y, z
-
-    # Andromeda (Messier 31)
-    dx, dy, dz = galactic_to_cartesian(2516063.4850713015, 121.17432906422938, -21.57330879852804)
-
-    # -----------------------------
-    # 2. Sichtlinien-Vektor (Erde → Andromeda)
-    # -----------------------------
-    length = math.sqrt(dx**2 + dy**2 + dz**2)
-    nx, ny, nz = dx/length, dy/length, dz/length
-
-    # -----------------------------
-    # 3. Rotationsachse bestimmen
-    # (Z-Achse → Richtung Andromeda)
-    # -----------------------------
-    rx = -ny
-    ry = nx
-    rz = 0
-
-    axis_len = math.sqrt(rx**2 + ry**2 + rz**2)
-    rx /= axis_len
-    ry /= axis_len
-    rz /= axis_len
-
-    angle_to_view = math.acos(nz)
-
-    # -----------------------------
-    # 4. Rotation um beliebige Achse
-    # -----------------------------
-    def rotate_axis(x, y, z, ux, uy, uz, angle):
-        cos_a = math.cos(angle)
-        sin_a = math.sin(angle)
-
-        x_new, y_new, z_new = [], [], []
-
-        for xi, yi, zi in zip(x, y, z):
-            dot = ux*xi + uy*yi + uz*zi
-
-            x_rot = (xi * cos_a +
-                     (uy*zi - uz*yi) * sin_a +
-                     ux * dot * (1 - cos_a))
-
-            y_rot = (yi * cos_a +
-                     (uz*xi - ux*zi) * sin_a +
-                     uy * dot * (1 - cos_a))
-
-            z_rot = (zi * cos_a +
-                     (ux*yi - uy*xi) * sin_a +
-                     uz * dot * (1 - cos_a))
-
-            x_new.append(x_rot)
-            y_new.append(y_rot)
-            z_new.append(z_rot)
-
-        return x_new, y_new, z_new
-
-    # -----------------------------
-    # 5. Spiralparameter (größer als Milchstraße)
-    # -----------------------------
-    spiral_params = [
-        # a: start radius of spiral arm. 500- very compact, 5000 big empty core
-        # b: spiral form. 0.1- tight spiral (like a snake), 0.4 open and stetched
-        # theta_min: start engle. 0- standard, not0- shift of start engle
-        # theta_max: lenght of arm, 2pi- one round, 4pi - two rounds, 6pi- 3 rounds
-        # num_points: amount of stars. something between 2000-5000 is good for an arm
-        # spread: thickness. how far the stars are awai from the ideal spiral
-        {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000}, # changed to Andromeda values. original {"a": 2000, "b": 0.25, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 3000},
-        {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
-        {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
-        {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
-    ]
-
-    angles = [0, math.pi/2, math.pi, 3*math.pi/2]
-
-    # -----------------------------
-    # 6. Arme erzeugen
-    # -----------------------------
-    for i, (params, angle) in enumerate(zip(spiral_params, angles)):
-
-        # Lokal erzeugen
-        x, y, z = spiral_arm(**params, center_shift=0)
-
-        # -----------------------------
-        # SKALIERUNG (220.000 Lj Durchmesser)
-        # -----------------------------
-        a = params["a"]
-        b = params["b"]
-        theta_max = params["theta_max"]
-
-        r_max = a * math.exp(b * theta_max) # calculation of actual max radius due to given spiral arm values
-        scale = 110000 / r_max  # Zielradius = 110.000 Lj, calculation of scale factor to get to the right radius
-
-        x = [xi * scale for xi in x] # scaling of spiral arms
-        y = [yi * scale for yi in y] # scaling of spiral arms
-        z = [zi * scale for zi in z] # scaling of spiral arms
-
-        # Spiralstruktur drehen
-        x, y = rotate_points(x, y, angle, center_x=0)
-
-        # --- WICHTIG ---
-        # 1. Ausrichtung zur Erde
-        x, y, z = rotate_axis(x, y, z, rx, ry, rz, angle_to_view)
-
-        # 2. Inklination (~77°)
-        # "Up"-Vektor (Referenz)
-        up = (0, 0, 1)
-
-        # Kreuzprodukt: Sichtlinie x Up = Rotationsachse
-        px = ny * up[2] - nz * up[1]
-        py = nz * up[0] - nx * up[2]
-        pz = nx * up[1] - ny * up[0]
-
-        # Normieren
-        plen = math.sqrt(px**2 + py**2 + pz**2)
-        px /= plen
-        py /= plen
-        pz /= plen
-        x, y, z = rotate_axis(x, y, z, px, py, pz, math.radians(77))
-
-        # 3. Positionswinkel (~38°)
-        x, y, z = rotate_axis(x, y, z, nx, ny, nz, math.radians(38))
-
-        # Verschieben zur echten Position
-        x = [xi + dx for xi in x]
-        y = [yi + dy for yi in y]
-        z = [zi + dz for zi in z]
-
-        # check if radius is correct
-        max_r = max(
-        math.sqrt((xi - dx)**2 + (yi - dy)**2 + (zi - dz)**2)
-        for xi, yi, zi in zip(x, y, z)
-        )
-        print("Max Radius:", max_r)
-        
-        # Plotly Trace
-        data.append(
-            go.Scatter3d(
-                x=x, y=y, z=z,
-                mode='markers',
-                marker=dict(size=1, color='rgb(200, 220, 255)'),
-                showlegend=False,
-                name=f"Andromeda Arm {i+1}",
-                hoverinfo='skip'
-            )
-        )
-
 #Add distance labels to the circles around the sun
 def add_distance_labels(data, radii, earth_x=0.00001585501251):
     """
@@ -421,10 +259,761 @@ def create_circles(radii, num_points=360, earth_x=0.00001585501251):
         circles.append((x, y, z))
     return circles
 
+def create_spiral_galaxy(
+    data,
+    spiral_arm,
+    rotate_points,
+    position,                  # (x, y, z)
+    spiral_params,             # Liste wie bei dir
+    arm_angles,                # z.B. [0, π/2, π, ...]
+    target_radius=None,        # z.B. 110000 (optional)
+    inclination_deg=0,         # Neigung
+    pos_angle_deg=0,           # Drehung in Sichtachse
+    align_to_view=False,       # zur Erde ausrichten?
+    color='rgb(255,255,255)',
+    name="Galaxy",
+    bulge_size=0.1,        # Anteil vom Radius
+    bulge_points=500,
+    halo_radius_factor=1,
+    halo_points=100,
+    bar_length=0.15,       # Anteil vom Galaxieradius
+    bar_width=0.02,        # Dicke
+    bar_height=0.005,      # vertikale Dicke
+    bar_points=2000,
+    bar_angle_deg=20      # Rotation innerhalb der Galaxie
+):
+    import math
+
+    dx, dy, dz = galactic_to_cartesian(*position)
+
+    # -----------------------------
+    # Sichtlinie
+    # -----------------------------
+    if align_to_view:
+        length = math.sqrt(dx**2 + dy**2 + dz**2)
+        nx, ny, nz = dx/length, dy/length, dz/length
+
+        # Rotationsachse (Z → Sichtlinie)
+        rx = -ny
+        ry = nx
+        rz = 0
+        axis_len = math.sqrt(rx**2 + ry**2 + rz**2)
+        rx /= axis_len
+        ry /= axis_len
+        rz /= axis_len
+
+        angle_to_view = math.acos(nz)
+
+        # senkrechte Achse für Inklination
+        if abs(nz) > 0.9:
+            up = (0, 1, 0)
+        else:
+            up = (0, 0, 1)
+
+        px = ny * up[2] - nz * up[1]
+        py = nz * up[0] - nx * up[2]
+        pz = nx * up[1] - ny * up[0]
+
+        plen = math.sqrt(px**2 + py**2 + pz**2)
+        px /= plen
+        py /= plen
+        pz /= plen
+
+    # -----------------------------
+    # Rotation um beliebige Achse
+    # -----------------------------
+    def rotate_axis(x, y, z, ux, uy, uz, angle):
+        cos_a = math.cos(angle)
+        sin_a = math.sin(angle)
+
+        x_new, y_new, z_new = [], [], []
+
+        for xi, yi, zi in zip(x, y, z):
+            dot = ux*xi + uy*yi + uz*zi
+
+            x_rot = (xi * cos_a +
+                     (uy*zi - uz*yi) * sin_a +
+                     ux * dot * (1 - cos_a))
+
+            y_rot = (yi * cos_a +
+                     (uz*xi - ux*zi) * sin_a +
+                     uy * dot * (1 - cos_a))
+
+            z_rot = (zi * cos_a +
+                     (ux*yi - uy*xi) * sin_a +
+                     uz * dot * (1 - cos_a))
+
+            x_new.append(x_rot)
+            y_new.append(y_rot)
+            z_new.append(z_rot)
+
+        return x_new, y_new, z_new
+
+    """
+    # -----------------------------
+    # Arme erzeugen
+    # -----------------------------
+    for i, (params, angle) in enumerate(zip(spiral_params, arm_angles)):
+
+        x, y, z = spiral_arm(**params, center_shift=0)
+
+        # -----------------------------
+        # Skalierung
+        # -----------------------------
+        if target_radius is not None:
+            a = params["a"]
+            b = params["b"]
+            theta_max = params["theta_max"]
+
+            r_max = a * math.exp(b * theta_max)
+            scale = target_radius / r_max
+
+            x = [xi * scale for xi in x]
+            y = [yi * scale for yi in y]
+            z = [zi * scale for zi in z]
+
+        # 2D Rotation der Arme
+        x, y = rotate_points(x, y, angle, center_x=0)
+
+        # -----------------------------
+        # 3D Orientierung
+        # -----------------------------
+        if align_to_view:
+            # zur Erde ausrichten
+            x, y, z = rotate_axis(x, y, z, rx, ry, rz, angle_to_view)
+
+            # Inklination
+            x, y, z = rotate_axis(x, y, z, px, py, pz, math.radians(inclination_deg))
+
+            # Positionswinkel
+            x, y, z = rotate_axis(x, y, z, nx, ny, nz, math.radians(pos_angle_deg))
+        else:
+            # einfache Rotation im Raum
+            x, y, z = rotate_axis(x, y, z, 1, 0, 0, math.radians(inclination_deg))
+            x, y, z = rotate_axis(x, y, z, 0, 0, 1, math.radians(pos_angle_deg))
+
+        # -----------------------------
+        # Verschieben
+        # -----------------------------
+        x = [xi + dx for xi in x]
+        y = [yi + dy for yi in y]
+        z = [zi + dz for zi in z]
+
+        # -----------------------------
+        # Plot
+        # -----------------------------
+        data.append(
+            go.Scatter3d(
+                x=x, y=y, z=z,
+                mode='markers',
+                marker=dict(size=1, color=color),
+                showlegend=False,
+                name=f"{name} Arm {i+1}",
+                hoverinfo='skip'
+            )
+        )
+    """
+    # -----------------------------
+    # Arme erzeugen
+    # -----------------------------
+    for i, (params, angle) in enumerate(zip(spiral_params, arm_angles)):
+        # -----------------------------
+        # ⭐ Startpunkt an Balken koppeln
+        # -----------------------------
+        a = params["a"]
+        b = params["b"]
+
+        if target_radius is not None:
+            bar_len = target_radius * bar_length
+
+            if bar_len > a:
+                theta_offset = math.log(bar_len / a) / b
+            else:
+                theta_offset = 0
+        else:
+            theta_offset = 0
+
+
+        # ⭐ Spiral mit verschobenem Start erzeugen
+        x, y, z = spiral_arm(
+            a=a,
+            b=b,
+            theta_min=params["theta_min"] + theta_offset,
+            theta_max=params["theta_max"],
+            num_points=params["num_points"],
+            spread=params["spread"],
+            center_shift=0
+        )
+
+        # -----------------------------
+        # Skalierung
+        # -----------------------------
+        if target_radius is not None:
+            theta_max = params["theta_max"]
+            r_max = a * math.exp(b * theta_max)
+            scale = target_radius / r_max
+
+            x = [xi * scale for xi in x]
+            y = [yi * scale for yi in y]
+            z = [zi * scale for zi in z]
+
+        # 2D Rotation der Arme
+        x, y = rotate_points(x, y, angle, center_x=0)
+
+        # -----------------------------
+        # 3D Orientierung
+        # -----------------------------
+        if align_to_view:
+            # zur Erde ausrichten
+            x, y, z = rotate_axis(x, y, z, rx, ry, rz, angle_to_view)
+
+            # Inklination
+            x, y, z = rotate_axis(x, y, z, px, py, pz, math.radians(inclination_deg))
+
+            # Positionswinkel
+            x, y, z = rotate_axis(x, y, z, nx, ny, nz, math.radians(pos_angle_deg))
+        else:
+            # einfache Rotation im Raum
+            x, y, z = rotate_axis(x, y, z, 1, 0, 0, math.radians(inclination_deg))
+            x, y, z = rotate_axis(x, y, z, 0, 0, 1, math.radians(pos_angle_deg))
+
+        # -----------------------------
+        # Verschieben
+        # -----------------------------
+        x = [xi + dx for xi in x]
+        y = [yi + dy for yi in y]
+        z = [zi + dz for zi in z]
+
+        # -----------------------------
+        # Plot
+        # -----------------------------
+        data.append(
+            go.Scatter3d(
+                x=x, y=y, z=z,
+                mode='markers',
+                marker=dict(size=1, color=color),
+                showlegend=False,
+                name=f"{name} Arm {i+1}",
+                hoverinfo='skip'
+            )
+        )
+    # -----------------------------
+    # BULGE (Zentrum)
+    # -----------------------------
+    if target_radius is not None:
+        import random
+
+        bulge_radius = target_radius * bulge_size
+
+        xb, yb, zb = [], [], []
+
+        for _ in range(bulge_points):
+            # Kugelverteilung (gaussian für realistischeren Kern)
+            x_local = random.gauss(0, bulge_radius / 2)
+            y_local = random.gauss(0, bulge_radius / 2)
+            z_local = random.gauss(0, bulge_radius / 3)
+
+            xb.append(x_local)
+            yb.append(y_local)
+            zb.append(z_local)
+
+        # gleiche Rotation wie Galaxie anwenden!
+        if align_to_view:
+            xb, yb, zb = rotate_axis(xb, yb, zb, rx, ry, rz, angle_to_view)
+            xb, yb, zb = rotate_axis(xb, yb, zb, px, py, pz, math.radians(inclination_deg))
+            xb, yb, zb = rotate_axis(xb, yb, zb, nx, ny, nz, math.radians(pos_angle_deg))
+        else:
+            xb, yb, zb = rotate_axis(xb, yb, zb, 1, 0, 0, math.radians(inclination_deg))
+            xb, yb, zb = rotate_axis(xb, yb, zb, 0, 0, 1, math.radians(pos_angle_deg))
+
+        # verschieben
+        xb = [xi + dx for xi in xb]
+        yb = [yi + dy for yi in yb]
+        zb = [zi + dz for zi in zb]
+
+        data.append(
+            go.Scatter3d(
+                x=xb, y=yb, z=zb,
+                mode='markers',
+                marker=dict(size=1, color=color),
+                showlegend=False,
+                name=f"{name} Bulge",
+                hoverinfo='skip'
+            )
+        )
+
+    # -----------------------------
+    # HALO (realistisch abfallend)
+    # -----------------------------
+    if target_radius is not None:
+        import random
+
+        halo_radius = target_radius * halo_radius_factor
+
+        xh, yh, zh = [], [], []
+
+        for _ in range(halo_points):
+
+            # ⭐ Radiale Verteilung mit Abnahme (Power-Law)
+            u = random.random()
+            #r = halo_radius * (u ** (1/3))  # mehr Punkte innen
+
+            # 👉 stärkerer Abfall (noch realistischer):
+            r = halo_radius * (u ** (1))
+
+            # Kugelkoordinaten
+            theta = random.uniform(0, 2 * math.pi)
+            phi = math.acos(random.uniform(-1, 1))
+
+            x_local = r * math.sin(phi) * math.cos(theta)
+            y_local = r * math.sin(phi) * math.sin(theta)
+
+            # ⭐ Halo ist leicht abgeflacht (nicht perfekte Kugel!)
+            z_local = r * math.cos(phi) * 0.1 #0.6
+
+            xh.append(x_local)
+            yh.append(y_local)
+            zh.append(z_local)
+
+        # gleiche Rotation!
+        if align_to_view:
+            xh, yh, zh = rotate_axis(xh, yh, zh, rx, ry, rz, angle_to_view)
+            xh, yh, zh = rotate_axis(xh, yh, zh, px, py, pz, math.radians(inclination_deg))
+            xh, yh, zh = rotate_axis(xh, yh, zh, nx, ny, nz, math.radians(pos_angle_deg))
+        else:
+            xh, yh, zh = rotate_axis(xh, yh, zh, 1, 0, 0, math.radians(inclination_deg))
+            xh, yh, zh = rotate_axis(xh, yh, zh, 0, 0, 1, math.radians(pos_angle_deg))
+
+        # verschieben
+        xh = [xi + dx for xi in xh]
+        yh = [yi + dy for yi in yh]
+        zh = [zi + dz for zi in zh]
+
+        data.append(
+            go.Scatter3d(
+                x=xh, y=yh, z=zh,
+                mode='markers',
+                marker=dict(size=1, color=color),
+                showlegend=False,
+                name=f"{name} Halo",
+                hoverinfo='skip'
+            )
+        )    
+
+    # -----------------------------
+    # BAR (Balkengalaxie)
+    # -----------------------------
+    if target_radius is not None and bar_points > 0:
+        import random
+
+        bar_len = target_radius * bar_length
+        bar_w = target_radius * bar_width
+        bar_h = target_radius * bar_height
+
+        xb, yb, zb = [], [], []
+
+        for _ in range(bar_points):
+            # entlang der Hauptachse (X-Richtung)
+            #x_local = random.uniform(-bar_len, bar_len)
+            x_local = random.gauss(0, bar_len / 2)
+
+            # ⭐ Normierte Position (0 = Mitte, 1 = Ende)
+            t = abs(x_local) / bar_len
+
+            # ⭐ Taper-Funktion (Form des Balkens)
+            taper = (1 - t**2)   # weich & realistisch
+
+            # Sicherheitsminimum (verhindert komplett dünne Enden)
+            taper = max(taper, 0.5)
+
+            # ⭐ Breite abhängig von Position
+            y_local = random.gauss(0, bar_w * taper)
+            z_local = random.gauss(0, bar_h * taper)
+
+            # Gauß-Verteilung für Dicke
+            #y_local = random.gauss(0, bar_w)
+            #z_local = random.gauss(0, bar_h)
+
+            xb.append(x_local)
+            yb.append(y_local)
+            zb.append(z_local)
+
+        # -----------------------------
+        # Rotation innerhalb der Galaxie (Bar-Winkel)
+        # -----------------------------
+        angle = math.radians(bar_angle_deg)
+        xb, yb = rotate_points(xb, yb, angle, center_x=0)
+
+        # -----------------------------
+        # gleiche 3D Rotation wie Rest
+        # -----------------------------
+        if align_to_view:
+            xb, yb, zb = rotate_axis(xb, yb, zb, rx, ry, rz, angle_to_view)
+            xb, yb, zb = rotate_axis(xb, yb, zb, px, py, pz, math.radians(inclination_deg))
+            xb, yb, zb = rotate_axis(xb, yb, zb, nx, ny, nz, math.radians(pos_angle_deg))
+        else:
+            xb, yb, zb = rotate_axis(xb, yb, zb, 1, 0, 0, math.radians(inclination_deg))
+            xb, yb, zb = rotate_axis(xb, yb, zb, 0, 0, 1, math.radians(pos_angle_deg))
+
+        # verschieben
+        xb = [xi + dx for xi in xb]
+        yb = [yi + dy for yi in yb]
+        zb = [zi + dz for zi in zb]
+
+        data.append(
+            go.Scatter3d(
+                x=xb, y=yb, z=zb,
+                mode='markers',
+                marker=dict(size=1, color=color),
+                showlegend=False,
+                name=f"{name} Bar",
+                hoverinfo='skip'
+            )
+        )
+
+def create_elliptical_galaxy(
+    data,
+    position,
+    radius,
+    num_points=10000,
+    flattening=0.6,
+    color='rgb(255,240,200)',
+    name="Elliptical Galaxy"
+):
+
+    dx, dy, dz = galactic_to_cartesian(*position)
+
+    xg, yg, zg = [], [], []
+
+    for _ in range(num_points):
+        # Radialverteilung (stark zum Zentrum konzentriert)
+        r = radius * (random.random() ** 0.3)
+
+        theta = random.uniform(0, 2 * math.pi)
+        phi = math.acos(random.uniform(-1, 1))
+
+        x = r * math.sin(phi) * math.cos(theta)
+        y = r * math.sin(phi) * math.sin(theta)
+        z = r * math.cos(phi) * flattening  # Abflachung
+
+        xg.append(x + dx)
+        yg.append(y + dy)
+        zg.append(z + dz)
+
+    data.append(
+        go.Scatter3d(
+            x=xg, y=yg, z=zg,
+            mode='markers',
+            marker=dict(size=1, color=color),
+            showlegend=False,
+            name=name,
+            hoverinfo='skip'
+        )
+    )
+"""
+def create_cd_galaxy(
+    data,
+    position,                 # (l, b, distance)
+    core_radius=50000,
+    galaxy_radius=300000,
+    halo_radius=1000000,
+    icl_radius=3000000,
+    core_points=5000,
+    galaxy_points=15000,
+    halo_points=10000,
+    icl_points=15000,
+    flattening=0.7,
+    icl_flattening=0.9,
+    color_core='rgb(255,245,220)',
+    color_galaxy='rgb(255,240,200)',
+    color_halo='rgb(200,220,255)',
+    color_icl='rgb(180,200,255)',
+    name="cD Galaxy"
+):
+    import random
+    import math
+
+    dx, dy, dz = galactic_to_cartesian(*position)
+
+    def sample_ellipsoid(radius, n_points, flatten):
+        xg, yg, zg = [], [], []
+
+        for _ in range(n_points):
+            # ⭐ Dichteprofil: stark zentral konzentriert
+            u = random.random()
+            r = radius * (u ** 0.25)
+
+            theta = random.uniform(0, 2 * math.pi)
+            phi = math.acos(random.uniform(-1, 1))
+
+            x = r * math.sin(phi) * math.cos(theta)
+            y = r * math.sin(phi) * math.sin(theta)
+            z = r * math.cos(phi) * flatten
+
+            xg.append(x)
+            yg.append(y)
+            zg.append(z)
+
+        return xg, yg, zg
+
+    # -----------------------------
+    # 1. CORE (extrem dicht)
+    # -----------------------------
+    xc, yc, zc = sample_ellipsoid(core_radius, core_points, flattening * 0.8)
+
+    data.append(go.Scatter3d(
+        x=[x + dx for x in xc],
+        y=[y + dy for y in yc],
+        z=[z + dz for z in zc],
+        mode='markers',
+        marker=dict(size=1.2, color=color_core),
+        showlegend=False,
+        name=f"{name} Core",
+        hoverinfo='skip'
+    ))
+
+    # -----------------------------
+    # 2. HAUPTGALAXIE
+    # -----------------------------
+    xg, yg, zg = sample_ellipsoid(galaxy_radius, galaxy_points, flattening)
+
+    data.append(go.Scatter3d(
+        x=[x + dx for x in xg],
+        y=[y + dy for y in yg],
+        z=[z + dz for z in zg],
+        mode='markers',
+        marker=dict(size=1, color=color_galaxy),
+        showlegend=False,
+        name=f"{name} Galaxy",
+        hoverinfo='skip'
+    ))
+
+    # -----------------------------
+    # 3. HALO (sehr diffus)
+    # -----------------------------
+    xh, yh, zh = sample_ellipsoid(halo_radius, halo_points, flattening * 1.2)
+
+    data.append(go.Scatter3d(
+        x=[x + dx for x in xh],
+        y=[y + dy for y in yh],
+        z=[z + dz for z in zh],
+        mode='markers',
+        marker=dict(size=1, color=color_halo),
+        showlegend=False,
+        name=f"{name} Halo",
+        hoverinfo='skip'
+    ))
+
+    # -----------------------------
+    # 4. INTRACLUSTER LIGHT (ICL)
+    # -----------------------------
+    xi, yi, zi = [], [], []
+
+    for _ in range(icl_points):
+        u = random.random()
+
+        # ⭐ noch flacheres Dichteprofil
+        r = icl_radius * (u ** 0.8)
+
+        theta = random.uniform(0, 2 * math.pi)
+        phi = math.acos(random.uniform(-1, 1))
+
+        x = r * math.sin(phi) * math.cos(theta)
+        y = r * math.sin(phi) * math.sin(theta)
+        z = r * math.cos(phi) * icl_flattening
+
+        xi.append(x)
+        yi.append(y)
+        zi.append(z)
+
+    data.append(go.Scatter3d(
+        x=[x + dx for x in xi],
+        y=[y + dy for y in yi],
+        z=[z + dz for z in zi],
+        mode='markers',
+        marker=dict(size=1, color=color_icl),
+        showlegend=False,
+        name=f"{name} ICL",
+        hoverinfo='skip'
+    ))
+"""
+
+def create_cd_galaxy(
+    data,
+    position,
+    total_points=40000,
+    target_diameter=2900000,
+    flattening=0.2,
+    icl_flattening=0.5,
+
+    inclination_deg=0,      # ⭐ NEU
+    pos_angle_deg=0,        # ⭐ NEU
+    align_to_view=False,    # ⭐ optional
+
+    name="cD Galaxy"
+):
+    import random
+    import math
+
+    dx, dy, dz = galactic_to_cartesian(*position)
+
+    # -----------------------------
+    # Rotation helper (gleich wie bei dir)
+    # -----------------------------
+    def rotate_axis(x, y, z, ux, uy, uz, angle):
+        cos_a = math.cos(angle)
+        sin_a = math.sin(angle)
+
+        x_new, y_new, z_new = [], [], []
+
+        for xi, yi, zi in zip(x, y, z):
+            dot = ux*xi + uy*yi + uz*zi
+
+            x_rot = (xi * cos_a +
+                     (uy*zi - uz*yi) * sin_a +
+                     ux * dot * (1 - cos_a))
+
+            y_rot = (yi * cos_a +
+                     (uz*xi - ux*zi) * sin_a +
+                     uy * dot * (1 - cos_a))
+
+            z_rot = (zi * cos_a +
+                     (ux*yi - uy*xi) * sin_a +
+                     uz * dot * (1 - cos_a))
+
+            x_new.append(x_rot)
+            y_new.append(y_rot)
+            z_new.append(z_rot)
+
+        return x_new, y_new, z_new
+
+    # -----------------------------
+    # Sichtlinien-Ausrichtung (optional)
+    # -----------------------------
+    if align_to_view:
+        length = math.sqrt(dx**2 + dy**2 + dz**2)
+        nx, ny, nz = dx/length, dy/length, dz/length
+
+        rx, ry, rz = -ny, nx, 0
+        axis_len = math.sqrt(rx**2 + ry**2)
+        rx /= axis_len
+        ry /= axis_len
+
+        angle_to_view = math.acos(nz)
+
+        up = (0, 0, 1) if abs(nz) < 0.9 else (0, 1, 0)
+
+        px = ny * up[2] - nz * up[1]
+        py = nz * up[0] - nx * up[2]
+        pz = nx * up[1] - ny * up[0]
+
+        plen = math.sqrt(px**2 + py**2 + pz**2)
+        px /= plen
+        py /= plen
+        pz /= plen
+
+    # -----------------------------
+    # Skalierung
+    # -----------------------------
+    visible_radius = target_diameter / 2
+
+    galaxy_scale = visible_radius / 4
+    core_scale   = galaxy_scale * 0.15
+    halo_scale   = galaxy_scale * 4
+    icl_scale    = galaxy_scale * 12
+
+    max_scale = icl_scale
+
+    x_all, y_all, z_all = [], [], []
+    colors = []
+
+    count = 0
+    while count < total_points:
+
+        u = random.random()
+        r = -max_scale * 0.25 * math.log(1 - u)
+
+        if r > max_scale:
+            continue
+
+        density = (
+            1.5 * math.exp(-r / core_scale) +
+            1.0 * math.exp(-r / galaxy_scale) +
+            0.6 * math.exp(-r / halo_scale) +
+            0.05 * math.exp(-r / icl_scale)
+        )
+
+        if random.random() > min(density, 1):
+            continue
+
+        theta = random.uniform(0, 2 * math.pi)
+        phi = math.acos(random.uniform(-1, 1))
+
+        t = r / max_scale
+        flat = flattening * (1 - t) + icl_flattening * t
+
+        x = r * math.sin(phi) * math.cos(theta)
+        y = r * math.sin(phi) * math.sin(theta)
+        z = r * math.cos(phi) * flat
+
+        jitter = r * 0.02
+        x += random.gauss(0, jitter)
+        y += random.gauss(0, jitter)
+        z += random.gauss(0, jitter)
+
+        # -----------------------------
+        # ⭐ ROTATION HIER ANWENDEN
+        # -----------------------------
+        if align_to_view:
+            x, y, z = rotate_axis([x], [y], [z], rx, ry, rz, angle_to_view)
+            x, y, z = rotate_axis(x, y, z, px, py, pz, math.radians(inclination_deg))
+            x, y, z = rotate_axis(x, y, z, nx, ny, nz, math.radians(pos_angle_deg))
+            x, y, z = x[0], y[0], z[0]
+        else:
+            x, y, z = rotate_axis([x], [y], [z], 1, 0, 0, math.radians(inclination_deg))
+            x, y, z = rotate_axis(x, y, z, 0, 0, 1, math.radians(pos_angle_deg))
+            x, y, z = x[0], y[0], z[0]
+
+        # -----------------------------
+        # Verschieben
+        # -----------------------------
+        x_all.append(x + dx)
+        y_all.append(y + dy)
+        z_all.append(z + dz)
+
+        # Farbe
+        if r < core_scale:
+            colors.append('rgb(255,245,220)')
+        elif r < galaxy_scale:
+            colors.append('rgb(255,235,200)')
+        elif r < halo_scale:
+            colors.append('rgb(220,230,255)')
+        else:
+            colors.append('rgb(180,200,255)')
+
+        count += 1
+
+    # -----------------------------
+    # Plot
+    # -----------------------------
+    data.append(
+        go.Scatter3d(
+            x=x_all,
+            y=y_all,
+            z=z_all,
+            mode='markers',
+            marker=dict(size=1, color=colors),
+            showlegend=False,
+            name=name,
+            hoverinfo='skip'
+        )
+    )
+
+
 #*************************************************
 # Create the 3D visualization of the objects in the universe
 #*************************************************
-def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_andromeda, show_distances, show_legend):
+def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_simulated_galaxies, show_distances, show_legend):
 
     #*************************************************
     # Figure - Layout
@@ -748,35 +1337,155 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
                 hoverinfo='skip'
             )
         )
-    
-    # Parameter for the spiral arms
-    spiral_params = [
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
-    ]
-    # Rotation angles for the spiral arms (in radians)
-    angles = [0, math.pi / 2, math.pi, 3 * math.pi / 2]
-    # Create data for the spiral arms
-    center_shift = 27000
-    for i, (params, angle) in enumerate(zip(spiral_params, angles)):
-        x, y, z = spiral_arm(**params, center_shift=center_shift)
-        x, y = rotate_points(x, y, angle, center_x=center_shift)  # Punkte um das galaktische Zentrum rotieren
-        data.append(
-            go.Scatter3d(
-                x=x, y=y, z=z,
-                mode='markers',
-                marker=dict(size=1, color='rgb(255, 248, 231)'), #Sternfarbe entsprechend kosmischer Latte #FFF8E7
-                showlegend=False,
-                name=f"Spiralarm {i+1}",
-                hoverinfo='skip'
-            )
-        )
 
-    # Add Andromeda Galaxy in right position with right rotation
-    if(show_andromeda):
-        create_andromeda(data, spiral_arm, rotate_points)
+    # Add Simulated Galaxy
+    if(show_simulated_galaxies):
+        # Andromeda M31
+        andromeda_pos = (121.17432906422938, -21.57330879852804, 2516063.4850713015)
+        spiral_params = [
+            # a: start radius of spiral arm. 500- very compact, 5000 big empty core
+            # b: spiral form. 0.1- tight spiral (like a snake), 0.4 open and stetched
+            # theta_min: start engle. 0- standard, not0- shift of start engle
+            # theta_max: lenght of arm, 2pi- one round, 4pi - two rounds, 6pi- 3 rounds
+            # num_points: amount of stars. something between 2000-5000 is good for an arm
+            # spread: thickness. how far the stars are awai from the ideal spiral
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
+        ]
+        angles = [0, math.pi/2, math.pi, 3*math.pi/2]
+        create_spiral_galaxy(
+            data,
+            spiral_arm,
+            rotate_points,
+            position=andromeda_pos,
+            spiral_params=spiral_params,
+            arm_angles=angles,
+            target_radius=110000,
+            inclination_deg=77,
+            pos_angle_deg=38,
+            align_to_view=True,
+            color='rgb(255, 248, 231)',
+            name="Andromeda",
+            bulge_size=0.1,        # Anteil vom Radius
+            bulge_points=500,
+            halo_radius_factor=1,
+            halo_points=100,
+            bar_length=0,       # Anteil vom Galaxieradius
+            bar_width=0,        # Dicke
+            bar_height=0,      # vertikale Dicke
+            bar_points=0,
+            bar_angle_deg=0      # Rotation innerhalb der Galaxie
+        )
+        
+        """
+        # IC1101
+        IC1101_pos = (6.47365650070465,50.54551432422441,1000000000.0)
+        spiral_params = [
+            # a: start radius of spiral arm. 500- very compact, 5000 big empty core
+            # b: spiral form. 0.1- tight spiral (like a snake), 0.4 open and stetched
+            # theta_min: start engle. 0- standard, not0- shift of start engle
+            # theta_max: lenght of arm, 2pi- one round, 4pi - two rounds, 6pi- 3 rounds
+            # num_points: amount of stars. something between 2000-5000 is good for an arm
+            # spread: thickness. how far the stars are awai from the ideal spiral
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 2 * math.pi, "num_points": 4000, "spread": 4000},
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 2 * math.pi, "num_points": 4000, "spread": 4000},
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 2 * math.pi, "num_points": 4000, "spread": 4000},
+            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 2 * math.pi, "num_points": 4000, "spread": 4000},
+        ]
+        angles = [0, math.pi/2, math.pi, 3*math.pi/2]
+        create_spiral_galaxy(
+            data,
+            spiral_arm,
+            rotate_points,
+            position=IC1101_pos,
+            spiral_params=spiral_params,
+            arm_angles=angles,
+            target_radius=1467703, #Durchmesser von 900kpc = 2,9Mio Lj = radius von 1.467.703
+            inclination_deg=30,
+            pos_angle_deg=45,
+            align_to_view=False,
+            color='rgb(255, 248, 231)',
+            name="IC1101",
+            bulge_size=0.1,        # Anteil vom Radius
+            bulge_points=500,
+            halo_radius_factor=1,
+            halo_points=100,
+            bar_length=0,       # Anteil vom Galaxieradius
+            bar_width=0,        # Dicke
+            bar_height=0,      # vertikale Dicke
+            bar_points=0,
+            bar_angle_deg=0      # Rotation innerhalb der Galaxie
+        )
+        """
+        """
+        # IC1101 as elliptical galaxy
+        create_elliptical_galaxy(
+        data,
+        position=(6.47365650070465,50.54551432422441,1000000000.0),
+        radius=1_467_703,   # ~2 Millionen Lichtjahre Radius (!)
+        num_points=20000,
+        flattening=0.7,
+        name="IC 1101"
+        )
+        """
+
+        
+        # IC1101 as cd galaxy
+        create_cd_galaxy(
+            data,
+            position=(6.47365650070465,50.54551432422441,1000000000.0),
+            total_points=60000,
+            target_diameter=2_900_000,
+            flattening=0.1,
+            icl_flattening=0.1,
+            inclination_deg=100,
+            pos_angle_deg=60,
+            align_to_view=True,
+            name="IC 1101"
+        )
+        
+
+    # Add Milkyway
+    milkyway_pos = (0, 0, SONNEN_ABSTAND)
+    spiral_params_milkyway = [
+        # a: start radius of spiral arm. 10 starts far away, 1200 kind in the middle
+        # b: spiral form. 0.1- tight spiral (like a snake), 0.4 open and stetched
+        # theta_min: start engle. 0- standard, not0- shift of start engle
+        # theta_max: lenght of arm, 2pi- one round, 4pi - two rounds, 6pi- 3 rounds
+        # num_points: amount of stars. something between 2000-5000 is good for an arm
+        # spread: thickness. how far the stars are awai from the ideal spiral
+        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
+        {"a": 1200, "b": 0.34, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 4000}, #b - let spiral arm begin at bar
+        {"a": 1200, "b": 0.3, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 2000},
+        {"a": 1200, "b": 0.34, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 4000}, #b - let spiral arm begin at bar
+    ]
+    angles_milkyway = [0, math.pi/2, math.pi, 3*math.pi/2]
+
+    create_spiral_galaxy(
+        data,
+        spiral_arm,
+        rotate_points,
+        position=milkyway_pos,
+        spiral_params=spiral_params_milkyway,
+        arm_angles=angles_milkyway,
+        target_radius=50000,
+        inclination_deg=90,
+        pos_angle_deg=0,
+        align_to_view=True,
+        color='rgb(255, 248, 231)',
+        name="Milkyway",
+        bulge_size=0.2,        # Anteil vom Radius
+        bulge_points=500,
+        halo_radius_factor=1,
+        halo_points=500,
+        bar_length=0.3,#test war 0.2       # Anteil vom Galaxieradius
+        bar_width=0.05,        # Dicke
+        bar_height=0.005,      # vertikale Dicke
+        bar_points=2000,
+        bar_angle_deg=500      # Rotation innerhalb der Galaxie
+    )
 
     # Create planet orbits around the sun
     planet_orbits = add_planet_orbits(orbits)
@@ -1124,7 +1833,7 @@ def start_gui():
     earthaxis_var = tk.IntVar(value=0)
     orientationline_var = tk.IntVar(value=0)
     visibility_limits_var = tk.IntVar(value=1)
-    show_andromeda_var = tk.IntVar(value=1)
+    show_simulated_galaxies_var = tk.IntVar(value=1)
     distances_var = tk.IntVar(value=1)
     legend_var = tk.IntVar(value=0)  # Standard: Legende anzeigen
     file_path = tk.StringVar(value="objects_UniverseTrip.csv")
@@ -1145,7 +1854,7 @@ def start_gui():
             'show_earthaxis': bool(earthaxis_var.get()),
             'show_orientationline': bool(orientationline_var.get()),
             'show_visibility_limits': bool(visibility_limits_var.get()),
-            'show_andromeda': bool(show_andromeda_var.get()),
+            'show_simulated_galaxies': bool(show_simulated_galaxies_var.get()),
             'show_distances': bool(distances_var.get()),
             'show_legend': bool(legend_var.get())
         }
@@ -1158,7 +1867,7 @@ def start_gui():
             options["show_earthaxis"], 
             options["show_orientationline"], 
             options["show_visibility_limits"],
-            options["show_andromeda"], 
+            options["show_simulated_galaxies"], 
             options["show_distances"],
             options["show_legend"]
         )
@@ -1191,7 +1900,7 @@ def start_gui():
     ttk.Checkbutton(options_frame, text="Show Earth axis", variable=earthaxis_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show orientaton line Sun to Galactic center", variable=orientationline_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show visibility limits", variable=visibility_limits_var).pack(anchor="w")
-    ttk.Checkbutton(options_frame, text="Show Andromeda simulated as galaxy", variable=show_andromeda_var).pack(anchor="w")
+    ttk.Checkbutton(options_frame, text="Simulate additional galaxies", variable=show_simulated_galaxies_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show distance circles", variable=distances_var).pack(anchor="w")
     ttk.Checkbutton(options_frame, text="Show legend", variable=legend_var).pack(anchor="w")
 
@@ -1206,7 +1915,7 @@ def start_gui():
 #*************************************************
 # Main program
 #*************************************************  
-def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_andromeda, show_distances, show_legend):
+def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_simulated_galaxies, show_distances, show_legend):
     # Pfad zur CSV-Datei
     #file_path = "objects_UniverseTrip.csv"  #Dateipfad zur Datendatei, not needed any more bercause this will be defined in GUI
 
@@ -1238,7 +1947,7 @@ def main(file_path, show_markertext, show_hoverinfo, show_lines, show_earthaxis,
     ]
     
     # 3D-Darstellung
-    create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_andromeda, show_distances, show_legend)
+    create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show_lines, show_earthaxis, show_orientationline, show_visibility_limits, show_simulated_galaxies, show_distances, show_legend)
 
 if __name__ == "__main__":
     start_gui()
