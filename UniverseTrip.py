@@ -270,7 +270,7 @@ def create_spiral_galaxy(
     inclination_deg=0,         # Neigung
     pos_angle_deg=0,           # Drehung in Sichtachse
     align_to_view=False,       # zur Erde ausrichten?
-    color='rgb(255,255,255)',
+    color='rgb(255,248,231)',
     name="Galaxy",
     bulge_size=0.1,        # Anteil vom Radius
     bulge_points=500,
@@ -600,7 +600,7 @@ def create_spiral_galaxy(
             go.Scatter3d(
                 x=xb, y=yb, z=zb,
                 mode='markers',
-                marker=dict(size=1, color='red'),#color),
+                marker=dict(size=1, color=color),
                 showlegend=False,
                 name=f"{name} Bar",
                 hoverinfo='skip'
@@ -613,7 +613,7 @@ def create_elliptical_galaxy(
     radius,
     num_points=10000,
     flattening=0.6,
-    color='rgb(255,240,200)',
+    color='rgb(255, 248, 231)',
     name="Elliptical Galaxy"
 ):
 
@@ -1204,7 +1204,7 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         )
 
         # Large Magellanic Cloud
-        pos = (0, 0, 100000)
+        pos = (280.46522149818975,-32.888401793515,163127.11230386817)
         spiral_params = [
             # a: start radius of spiral arm. 500- very compact, 5000 big empty core
             # b: spiral form. 0.1- tight spiral (like a snake), 0.4 open and stetched
@@ -1212,12 +1212,12 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
             # theta_max: lenght of arm, 2pi- one round, 4pi - two rounds, 6pi- 3 rounds
             # num_points: amount of stars. something between 2000-5000 is good for an arm
             # spread: thickness. how far the stars are awai from the ideal spiral
-            {"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 4000},
+            {"a": 2000, "b": 0.20, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 2000, "spread": 2000},
             #{"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
             #{"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
             #{"a": 1500, "b": 0.22, "theta_min": 0, "theta_max": 5 * math.pi, "num_points": 4000, "spread": 4000},
         ]
-        angles = [0, math.pi/2, math.pi, 3*math.pi/2]
+        angles = [0]
         create_spiral_galaxy(
             data,
             spiral_arm,
@@ -1225,21 +1225,35 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
             position=pos,
             spiral_params=spiral_params,
             arm_angles=angles,
-            target_radius=14000,
-            inclination_deg=0,
-            pos_angle_deg=0,
+            target_radius=7000,
+            inclination_deg=35,
+            pos_angle_deg=120,
             align_to_view=False,
             color='rgb(255, 248, 231)',
             name="GMC",
-            bulge_size=0.1,        # Anteil vom Radius
-            bulge_points=500,
+            bulge_size=0.05,        # Anteil vom Radius
+            bulge_points=200,
             halo_radius_factor=1,
-            halo_points=100,
-            bar_length=0.6,       # Anteil vom Galaxieradius
+            halo_points=2000,
+            bar_length=0.3,       # Anteil vom Galaxieradius
             bar_width=0.1,        # Dicke
             bar_height=0.05,      # vertikale Dicke
             bar_points=1000,
             bar_angle_deg=80      # Rotation innerhalb der Galaxie
+        )
+
+        # Small Magellanic Cloud as cd galaxy
+        create_cd_galaxy(
+            data,
+            position=(302.8083890743798,-44.327687896978915,196807.97680286094),
+            total_points=15000,
+            target_diameter=7000,
+            flattening=0.4,
+            icl_flattening=0.8,
+            inclination_deg=60,
+            pos_angle_deg=30,
+            align_to_view=True,
+            name="SMC"
         )
         
 
