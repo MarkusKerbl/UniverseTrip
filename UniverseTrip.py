@@ -1188,6 +1188,34 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
             bar_points=0,
             bar_angle_deg=0      # Rotation innerhalb der Galaxie
         )
+        
+        # Messier 32
+        create_cd_galaxy(
+            data,
+            position=(121.15001697292713,-21.976333630433018,2533147.866760058),
+            total_points=12000,
+            target_diameter=8000,
+            flattening=0.9, #nearly as a ball
+            icl_flattening=1, #outer area circular
+            inclination_deg=20,
+            pos_angle_deg=0,
+            align_to_view=True,
+            name="M 32"
+        )
+        
+        # Messier 110
+        create_cd_galaxy(
+            data,
+            position=(120.71627948933171,-21.138699307042554,2568481.4743436202),
+            total_points=18000,
+            target_diameter=15000,
+            flattening=0.2,
+            icl_flattening=0.5, #outer area circular
+            inclination_deg=45,
+            pos_angle_deg=60,
+            align_to_view=True,
+            name="M 110"
+        )
                 
         # IC1101 as cd galaxy
         create_cd_galaxy(
@@ -1272,7 +1300,6 @@ def create_plot(objects, orbits, clusters, show_markertext, show_hoverinfo, show
         {"a": 1200, "b": 0.34, "theta_min": 0, "theta_max": 4 * math.pi, "num_points": 4000, "spread": 4000}, #b - let spiral arm begin at bar
     ]
     angles_milkyway = [0, math.pi/2, math.pi, 3*math.pi/2]
-
     create_spiral_galaxy(
         data,
         spiral_arm,
